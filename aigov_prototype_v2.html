@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem — AI Governance Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0d1117;
+  --ink-mid: #1c2632;
+  --ink-soft: #2d3f52;
+  --slate: #4a6280;
+  --mist: #8fa5bc;
+  --paper: #f4f1eb;
+  --white: #fdfcfa;
+  --accent-blue: #2563a8;
+  --accent-blue-pale: #dbeafe;
+  --accent-amber: #b45309;
+  --accent-amber-pale: #fef3c7;
+  --accent-sage: #2d6a4f;
+  --accent-sage-pale: #d1fae5;
+  --accent-red: #c0392b;
+  --accent-red-pale: #fee2e2;
+  --accent-orange: #d97706;
+  --accent-orange-pale: #ffedd5;
+  --border: #dde5ee;
+  --border-light: #eef2f7;
+  --shadow-sm: 0 1px 3px rgba(13,17,23,0.06);
+  --shadow-md: 0 4px 16px rgba(13,17,23,0.08);
+  --shadow-lg: 0 12px 40px rgba(13,17,23,0.12);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+/* ── ROLE LOGIN SCREEN ── */
+#role-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  padding: 2rem;
+}
+.login-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+}
+.login-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--accent-blue);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+}
+.login-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 3rem;
+  font-weight: 300;
+  text-align: center;
+}
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 280px);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.role-login-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.role-login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.role-login-card:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.role-login-card.implementer::before { background: linear-gradient(135deg, rgba(37,99,168,0.15), transparent); }
+.role-login-card.reviewer::before { background: linear-gradient(135deg, rgba(180,83,9,0.15), transparent); }
+.role-login-card.owner::before { background: linear-gradient(135deg, rgba(192,57,43,0.15), transparent); }
+.role-login-card.executive::before { background: linear-gradient(135deg, rgba(45,106,79,0.15), transparent); }
+.role-login-card:hover::before { opacity: 1; }
+.rlc-icon { font-size: 28px; margin-bottom: 0.75rem; }
+.rlc-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 400; color: white; margin-bottom: 4px; }
+.rlc-who { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.rlc-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; font-weight: 300; }
+.rlc-sees { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 10px; font-weight: 300; font-style: italic; }
+.login-note { font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; max-width: 420px; line-height: 1.6; }
+
+/* ── APP SHELL ── */
+#app-shell { display: none; }
+.shell { display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 56px 1fr; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400; color: var(--white); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.logo-mark { width: 24px; height: 24px; background: var(--accent-blue); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.topbar-center { flex: 1; display: flex; justify-content: center; }
+.role-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 3px 4px;
+}
+.role-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.5);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.role-pill:hover { color: rgba(255,255,255,0.8); }
+.role-pill.active { background: rgba(255,255,255,0.15); color: white; }
+.topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+.org-badge { font-size: 11px; font-weight: 500; color: var(--mist); letter-spacing: 0.04em; text-transform: uppercase; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+.user-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: white; cursor: pointer; }
+.switch-btn { font-size: 11px; color: rgba(255,255,255,0.4); cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: color 0.15s; border: 1px solid rgba(255,255,255,0.1); }
+.switch-btn:hover { color: rgba(255,255,255,0.7); }
+
+/* ── SIDEBAR ── */
+.sidebar { background: var(--ink-mid); padding: 1.5rem 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; display: flex; flex-direction: column; }
+.sidebar-section { margin-bottom: 1.5rem; }
+.sidebar-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 1.25rem; margin-bottom: 0.5rem; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; }
+.nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: white; background: rgba(255,255,255,0.07); border-left-color: var(--accent-blue); font-weight: 500; }
+.nav-icon { width: 15px; height: 15px; opacity: 0.7; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-count { margin-left: auto; font-size: 10px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); padding: 1px 6px; border-radius: 10px; font-family: 'DM Mono', monospace; }
+.nav-count.red { background: rgba(192,57,43,0.3); color: #f87171; }
+
+/* ── ROLE CONTEXT BANNER ── */
+.role-banner {
+  margin: 0 0 1.5rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.role-banner.implementer { background: var(--accent-blue-pale); border: 1px solid rgba(37,99,168,0.2); color: var(--accent-blue); }
+.role-banner.reviewer { background: var(--accent-amber-pale); border: 1px solid rgba(180,83,9,0.2); color: var(--accent-amber); }
+.role-banner.owner { background: var(--accent-red-pale); border: 1px solid rgba(192,57,43,0.2); color: var(--accent-red); }
+.role-banner.executive { background: var(--accent-sage-pale); border: 1px solid rgba(45,106,79,0.2); color: var(--accent-sage); }
+
+/* ── MAIN ── */
+.main { padding: 2rem 2.5rem; overflow-y: auto; background: var(--paper); animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── PAGE HEADERS ── */
+.page-header { margin-bottom: 2rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.page-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 400; color: var(--ink); line-height: 1.2; margin-bottom: 4px; }
+.page-subtitle { font-size: 13px; color: var(--slate); font-weight: 300; line-height: 1.6; max-width: 560px; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn-primary { background: var(--ink); color: white; }
+.btn-primary:hover { background: var(--ink-soft); }
+.btn-secondary { background: white; color: var(--ink); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.btn-secondary:hover { border-color: var(--slate); }
+.btn-ghost { background: transparent; color: var(--slate); border: 1px solid var(--border); }
+.btn-ghost:hover { background: white; }
+.btn-danger { background: var(--accent-red); color: white; }
+.btn-sm { font-size: 12px; padding: 5px 12px; }
+
+/* ── CARDS ── */
+.card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow-sm); }
+.card-sm { padding: 1rem 1.25rem; }
+.mt-2 { margin-top: 1rem; }
+.mb-2 { margin-bottom: 1rem; }
+
+/* ── FORM ELEMENTS ── */
+.field { margin-bottom: 1.25rem; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 12px; font-weight: 500; color: var(--slate); margin-bottom: 5px; letter-spacing: 0.01em; }
+.required-star { color: var(--accent-red); }
+input[type=text], input[type=email], textarea, select { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; transition: border-color 0.15s; outline: none; appearance: none; }
+input[type=text]:focus, input[type=email]:focus, textarea:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37,99,168,0.08); }
+textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238fa5bc'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.field-hint { font-size: 11px; color: var(--mist); margin-top: 4px; line-height: 1.5; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.75rem; }
+
+/* ── SECTION TITLES ── */
+.section-title { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+
+/* ── BADGES ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; }
+.badge-blue { background: var(--accent-blue-pale); color: var(--accent-blue); }
+.badge-amber { background: var(--accent-amber-pale); color: var(--accent-amber); }
+.badge-sage { background: var(--accent-sage-pale); color: var(--accent-sage); }
+.badge-red { background: var(--accent-red-pale); color: var(--accent-red); }
+.badge-orange { background: var(--accent-orange-pale); color: var(--accent-orange); }
+.badge-muted { background: var(--border-light); color: var(--slate); }
+
+/* ── STATUS DOTS ── */
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: #10b981; }
+.dot-yellow { background: #f59e0b; }
+.dot-red { background: var(--accent-red); }
+.dot-blue { background: var(--accent-blue); }
+.dot-gray { background: var(--mist); }
+
+/* ── STAT CARDS ── */
+.stat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-sm); }
+.stat-label { font-size: 11px; font-weight: 500; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.stat-value { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+.stat-sub { font-size: 11px; color: var(--slate); font-weight: 300; }
+
+/* ── SYSTEM ROWS ── */
+.system-row { display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.12s; border-radius: 4px; margin-left: -8px; }
+.system-row:hover { background: var(--border-light); }
+.system-row:last-child { border-bottom: none; }
+.system-name { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; }
+.system-meta { font-size: 11px; color: var(--mist); }
+
+/* ── FLAGS ── */
+.flag-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: white; margin-bottom: 0.5rem; }
+.flag-stripe { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; }
+.flag-stripe.hard { background: var(--accent-red); }
+.flag-stripe.advisory { background: var(--accent-orange); }
+.flag-stripe.rec { background: var(--accent-blue); }
+
+/* ── TIMELINE ── */
+.record-timeline { position: relative; padding-left: 28px; }
+.record-timeline::before { content: ''; position: absolute; left: 9px; top: 0; bottom: 0; width: 1.5px; background: var(--border); }
+.timeline-event { position: relative; margin-bottom: 1.25rem; }
+.timeline-dot { position: absolute; left: -23px; top: 3px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid white; }
+.timeline-dot.blue { background: var(--accent-blue); box-shadow: 0 0 0 1.5px var(--accent-blue); }
+.timeline-dot.green { background: #10b981; box-shadow: 0 0 0 1.5px #10b981; }
+.timeline-dot.red { background: var(--accent-red); box-shadow: 0 0 0 1.5px var(--accent-red); }
+.timeline-dot.orange { background: var(--accent-orange); box-shadow: 0 0 0 1.5px var(--accent-orange); }
+.timeline-dot.gray { background: var(--mist); box-shadow: 0 0 0 1.5px var(--mist); }
+.event-time { font-size: 10px; color: var(--mist); font-family: 'DM Mono', monospace; margin-bottom: 2px; }
+.event-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.event-note { font-size: 12px; color: var(--slate); font-weight: 300; line-height: 1.5; }
+
+/* ── LIFECYCLE BAR ── */
+.lifecycle-bar { display: flex; gap: 2px; margin-top: 1rem; }
+.lc-stage { flex: 1; height: 4px; border-radius: 2px; background: var(--border-light); }
+.lc-stage.done { background: var(--accent-sage); }
+.lc-stage.active { background: var(--accent-blue); }
+.lc-stage.blocked { background: var(--accent-red); }
+.lc-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mist); margin-top: 4px; text-align: center; }
+
+/* ── STEPS ── */
+.steps { display: flex; align-items: center; margin-bottom: 2rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.5rem; box-shadow: var(--shadow-sm); }
+.step { display: flex; align-items: center; gap: 8px; flex: 1; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border-light); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--mist); flex-shrink: 0; transition: all 0.2s; }
+.step.done .step-num { background: var(--accent-sage-pale); border-color: var(--accent-sage); color: var(--accent-sage); }
+.step.active .step-num { background: var(--ink); border-color: var(--ink); color: white; }
+.step-label { font-size: 12px; font-weight: 500; color: var(--mist); white-space: nowrap; }
+.step.active .step-label { color: var(--ink); }
+.step.done .step-label { color: var(--accent-sage); }
+
+/* ── IMPLEMENTER SELECTOR ── */
+.impl-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+.impl-card { border: 2px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; transition: all 0.18s; background: white; position: relative; }
+.impl-card:hover { border-color: var(--accent-blue); box-shadow: var(--shadow-md); }
+.impl-card.selected { border-color: var(--accent-blue); background: #f0f6ff; }
+.impl-card .check { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; background: var(--accent-blue); border-radius: 50%; display: none; align-items: center; justify-content: center; }
+.impl-card.selected .check { display: flex; }
+.impl-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 0.75rem; }
+.impl-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.impl-desc { font-size: 11px; color: var(--slate); line-height: 1.5; font-weight: 300; }
+
+/* ── RISK BAR ── */
+.risk-bar-wrap { height: 8px; background: var(--border-light); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.risk-bar { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1), background 0.4s; }
+
+/* ── ROLE ROWS (ownership) ── */
+.role-row { display: flex; align-items: flex-start; gap: 14px; padding: 1rem 0; border-bottom: 1px solid var(--border-light); }
+.role-row:last-child { border-bottom: none; }
+.role-avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.role-info { flex: 1; }
+.role-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.role-question { font-size: 11px; color: var(--mist); font-weight: 300; margin-bottom: 8px; line-height: 1.4; }
+.role-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ── CALLOUTS ── */
+.callout { background: var(--accent-blue-pale); border: 1px solid rgba(37,99,168,0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--accent-blue); line-height: 1.6; }
+.callout.warning { background: var(--accent-orange-pale); border-color: rgba(180,83,9,0.2); color: var(--accent-amber); }
+.callout.danger { background: var(--accent-red-pale); border-color: rgba(192,57,43,0.2); color: var(--accent-red); }
+.callout.success { background: var(--accent-sage-pale); border-color: rgba(45,106,79,0.2); color: var(--accent-sage); }
+
+/* ── MISC ── */
+.mono { font-family: 'DM Mono', monospace; }
+.text-muted { color: var(--mist); }
+.text-sm { font-size: 12px; }
+.flex { display: flex; align-items: center; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.justify-between { justify-content: space-between; }
+hr.divider { border: none; border-top: 1px solid var(--border-light); margin: 1.25rem 0; }
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--slate); cursor: pointer; padding: 6px 8px; border-radius: var(--radius-sm); transition: background 0.12s; }
+.radio-opt:hover { background: var(--border-light); }
+.radio-opt input { margin-top: 2px; flex-shrink: 0; }
+
+/* ── PANEL ── */
+.panel-overlay { position: fixed; inset: 0; background: rgba(13,17,23,0.4); z-index: 200; display: none; backdrop-filter: blur(2px); }
+.panel-overlay.open { display: flex; align-items: flex-start; justify-content: flex-end; }
+.panel { width: 520px; max-width: 95vw; background: var(--white); height: 100vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: slidePanel 0.25s ease; }
+@keyframes slidePanel { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.panel-header { background: var(--ink); padding: 1.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; position: sticky; top: 0; }
+.panel-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 400; color: white; }
+.panel-subtitle { font-size: 12px; color: var(--mist); margin-top: 3px; font-weight: 300; }
+.panel-close { color: rgba(255,255,255,0.5); cursor: pointer; font-size: 20px; line-height: 1; }
+.panel-close:hover { color: white; }
+.panel-body { padding: 1.5rem; }
+
+/* ── TOAST ── */
+.toast-wrap { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { background: var(--ink); color: white; font-size: 13px; padding: 10px 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px; animation: toastIn 0.25s ease; pointer-events: auto; max-width: 320px; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── EXEC CHART BARS ── */
+.mini-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.mini-bar-label { font-size: 11px; color: var(--slate); width: 140px; flex-shrink: 0; }
+.mini-bar-track { flex: 1; height: 8px; background: var(--border-light); border-radius: 4px; overflow: hidden; }
+.mini-bar-fill { height: 100%; border-radius: 4px; }
+.mini-bar-val { font-size: 11px; color: var(--mist); font-family: 'DM Mono', monospace; width: 24px; text-align: right; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     ROLE LOGIN SCREEN
+══════════════════════════════════ -->
+<div id="role-screen">
+  <div class="login-logo">
+    <div class="login-logo-mark">
+      <svg viewBox="0 0 14 14" fill="none" width="18" height="18"><path d="M2 7h10M7 2v10" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="5" stroke="white" stroke-width="1.5"/></svg>
+    </div>
+    Tandem
+  </div>
+  <div class="login-sub">AI Governance Platform · Acme Corp</div>
+
+  <div class="role-grid">
+    <div class="role-login-card implementer" onclick="enterAs('implementer')">
+      <div class="rlc-icon">🔧</div>
+      <div class="rlc-title">Implementer</div>
+      <div class="rlc-who" style="color:#60a5fa;">Builder · Procurer · Enabler</div>
+      <div class="rlc-desc">You're bringing a system into the organization — whether you built it, bought it, or enabled it within an existing platform.</div>
+      <div class="rlc-sees">Sees: your own systems, your tasks, flags on your records</div>
+    </div>
+    <div class="role-login-card reviewer" onclick="enterAs('reviewer')">
+      <div class="rlc-icon">🔍</div>
+      <div class="rlc-title">Reviewer</div>
+      <div class="rlc-who" style="color:#fbbf24;">Ethics & Privacy · Legal · Technical</div>
+      <div class="rlc-desc">You evaluate systems assigned to you — reviewing intake records, raising flags, and approving or blocking advancement.</div>
+      <div class="rlc-sees">Sees: assigned systems, flags you raised, your review queue</div>
+    </div>
+    <div class="role-login-card owner" onclick="enterAs('owner')">
+      <div class="rlc-icon">⚖️</div>
+      <div class="rlc-title">Accountable Owner</div>
+      <div class="rlc-who" style="color:#f87171;">Business unit leadership</div>
+      <div class="rlc-desc">You hold final deployment authority for systems in your business unit. You can escalate disputes and initiate override requests.</div>
+      <div class="rlc-sees">Sees: all systems in your business unit, active blocks, pending approvals</div>
+    </div>
+    <div class="role-login-card executive" onclick="enterAs('executive')">
+      <div class="rlc-icon">📊</div>
+      <div class="rlc-title">Executive / Governance Committee</div>
+      <div class="rlc-who" style="color:#34d399;">Org-wide posture view</div>
+      <div class="rlc-desc">You see patterns across the registry — risk exposure, override history, open blocks, and governance program health. Not system-level detail.</div>
+      <div class="rlc-sees">Sees: org-wide aggregates, override log, committee decisions</div>
+    </div>
+  </div>
+  <div class="login-note">This selector demonstrates how Tandem's role-based views work. In production, your view is determined by your identity and organizational role — you would not choose it manually.</div>
+</div>
+
+<!-- ══════════════════════════════════
+     APP SHELL
+══════════════════════════════════ -->
+<div id="app-shell">
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M2 7h10M7 2v10" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="5" stroke="white" stroke-width="1.5"/></svg>
+      </div>
+      Tandem
+    </div>
+    <div class="topbar-center">
+      <div class="role-switcher" id="role-switcher">
+        <div class="role-pill" data-role="implementer" onclick="switchRole('implementer')">Implementer</div>
+        <div class="role-pill" data-role="reviewer" onclick="switchRole('reviewer')">Reviewer</div>
+        <div class="role-pill" data-role="owner" onclick="switchRole('owner')">Accountable Owner</div>
+        <div class="role-pill" data-role="executive" onclick="switchRole('executive')">Executive</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="org-badge">Acme Corp</span>
+      <div class="user-dot" id="user-dot" style="background: linear-gradient(135deg, #2563a8, #5b8fd4);">AM</div>
+      <span class="switch-btn" onclick="backToLogin()">↩ Switch</span>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <!-- Rendered by JS per role -->
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="main-content">
+    <!-- All role-specific views rendered here -->
+
+    <!-- ═══ IMPLEMENTER VIEWS ═══ -->
+
+    <!-- Implementer Dashboard -->
+    <div id="view-impl-dashboard" class="view">
+      <div id="impl-banner" class="role-banner implementer" style="margin-bottom:1.5rem;">
+        🔧 <span><strong>Implementer view</strong> — you see only the systems you've registered and the tasks assigned to you.</span>
+      </div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">My systems</div>
+          <div class="page-subtitle">Systems you've registered. Each one shows its current status and what's needed from you next.</div>
+        </div>
+        <button class="btn btn-primary" onclick="showView('impl-register')">+ Register system</button>
+      </div>
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="stat-card"><div class="stat-label">My systems</div><div class="stat-value">2</div><div class="stat-sub">Registered by you</div></div>
+        <div class="stat-card"><div class="stat-label">Action needed</div><div class="stat-value" style="color:var(--accent-red);">1</div><div class="stat-sub">Hard block — response needed</div></div>
+        <div class="stat-card"><div class="stat-label">Approved</div><div class="stat-value" style="color:var(--accent-sage);">0</div><div class="stat-sub">Ready for deployment</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Your registered systems</div>
+        <div class="system-row" onclick="showView('impl-record')">
+          <div class="status-dot dot-red"></div>
+          <div class="system-name">Resume Screening Model v2.1</div>
+          <span class="badge badge-amber">Procurer</span>
+          <span class="badge badge-red">Hard block — action needed</span>
+          <div class="system-meta">HR-001</div>
+        </div>
+        <div class="system-row">
+          <div class="status-dot dot-yellow"></div>
+          <div class="system-name">Gemini Workspace Rollout</div>
+          <span class="badge badge-sage">Enabler</span>
+          <span class="badge badge-orange">Advisory flag — under review</span>
+          <div class="system-meta">IT-003</div>
+        </div>
+      </div>
+      <div class="card mt-2">
+        <div class="section-title">What you cannot see</div>
+        <p class="text-sm text-muted" style="font-weight:300; line-height:1.7;">Other business units' systems, the governance committee's deliberations, other implementers' intake records, or the full reviewer notes. Your view is scoped to what you registered and what's directly relevant to your obligations as the implementer.</p>
+      </div>
+    </div>
+
+    <!-- Implementer Register -->
+    <div id="view-impl-register" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Register a system</div>
+          <div class="page-subtitle">How is this system entering your organization? Your answer determines which intake form you see.</div>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step active" id="step-1"><div class="step-num">1</div><div class="step-label">Implementer type</div></div>
+        <div class="step" id="step-2"><div class="step-num">2</div><div class="step-label">System identity</div></div>
+        <div class="step" id="step-3"><div class="step-num">3</div><div class="step-label">Risk assessment</div></div>
+        <div class="step" id="step-4"><div class="step-num">4</div><div class="step-label">Assign ownership</div></div>
+        <div class="step" id="step-5"><div class="step-num">5</div><div class="step-label">Submit</div></div>
+      </div>
+      <div id="reg-s1">
+        <div class="impl-selector">
+          <div class="impl-card" onclick="selectImpl('builder',this)">
+            <div class="check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="impl-icon" style="background:#dbeafe;">🔧</div>
+            <div class="impl-title">Builder</div>
+            <div class="impl-desc">Engineer or data scientist who built this system internally. Has direct technical knowledge of the model.</div>
+          </div>
+          <div class="impl-card" onclick="selectImpl('procurer',this)">
+            <div class="check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="impl-icon" style="background:#fef3c7;">🛒</div>
+            <div class="impl-title">Procurer</div>
+            <div class="impl-desc">HR manager, ops lead, or business unit selecting and deploying a third-party vendor tool.</div>
+          </div>
+          <div class="impl-card" onclick="selectImpl('enabler',this)">
+            <div class="check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="impl-icon" style="background:#d1fae5;">⚡</div>
+            <div class="impl-title">Enabler</div>
+            <div class="impl-desc">IT admin turning on an AI feature within an existing approved platform — Gemini, Copilot, etc.</div>
+          </div>
+        </div>
+        <div class="callout" id="impl-hint" style="display:none;"></div>
+        <div class="flex gap-1" style="margin-top:1.5rem; justify-content:flex-end;">
+          <button class="btn btn-primary" id="s1-next" onclick="regNext(2)" disabled style="opacity:0.4;">Continue →</button>
+        </div>
+      </div>
+      <div id="reg-s2" style="display:none;">
+        <div class="card" id="intake-form-container"></div>
+        <div class="flex gap-1" style="margin-top:1.5rem; justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="regBack(1)">← Back</button>
+          <button class="btn btn-primary" onclick="regNext(3)">Continue →</button>
+        </div>
+      </div>
+      <div id="reg-s3" style="display:none;">
+        <div class="card">
+          <div class="section-title">Risk scoring</div>
+          <p class="text-sm text-muted" style="margin-bottom:1rem; font-weight:300;">Five weighted questions. Answers determine risk tier and which reviewers are automatically assigned.</p>
+          <div id="risk-questions"></div>
+          <hr class="divider">
+          <div class="flex justify-between" style="align-items:center;">
+            <div><div class="text-sm text-muted">Risk tier</div><div id="tier-label" style="font-family:'Fraunces',serif; font-size:22px; color:var(--ink); margin-top:2px;">—</div></div>
+            <div style="flex:1; margin:0 1.5rem;"><div class="risk-bar-wrap"><div class="risk-bar" id="risk-bar" style="width:0%;"></div></div></div>
+            <div class="mono text-sm" id="score-display" style="color:var(--mist);">0 / 100</div>
+          </div>
+          <div id="risk-callout" style="margin-top:1rem;"></div>
+        </div>
+        <div class="flex gap-1" style="margin-top:1.5rem; justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="regBack(2)">← Back</button>
+          <button class="btn btn-primary" onclick="regNext(4)">Continue →</button>
+        </div>
+      </div>
+      <div id="reg-s4" style="display:none;">
+        <div class="card">
+          <div class="section-title">Ownership assignment</div>
+          <p class="text-sm text-muted" style="margin-bottom:1.25rem; font-weight:300;">Each role answers a different accountability question. Assign by decision authority, not org chart position.</p>
+          <div class="role-row">
+            <div class="role-avatar" style="background:#fee2e2; color:var(--accent-red);">AO</div>
+            <div class="role-info"><div class="role-title">Accountable owner <span class="required-star">*</span></div><div class="role-question">Who has final authority over deployment decisions?</div><div class="role-inputs"><input type="text" placeholder="Full name"/><input type="text" placeholder="Role / title"/></div></div>
+          </div>
+          <div class="role-row">
+            <div class="role-avatar" style="background:#dbeafe; color:var(--accent-blue);">TR</div>
+            <div class="role-info"><div class="role-title">Technical responsible</div><div class="role-question">Who understands how the model works and can change it?</div><div class="role-inputs"><input type="text" placeholder="Full name"/><input type="text" placeholder="Role / title"/></div></div>
+          </div>
+          <div class="role-row">
+            <div class="role-avatar" style="background:#fef3c7; color:var(--accent-amber);">EP</div>
+            <div class="role-info"><div class="role-title">Ethics & privacy reviewer</div><div class="role-question">Who reviews bias, fairness, and data protection?</div><div class="role-inputs"><input type="text" placeholder="Full name"/><input type="text" placeholder="Role / title"/></div></div>
+          </div>
+          <div class="role-row">
+            <div class="role-avatar" style="background:#d1fae5; color:var(--accent-sage);">LC</div>
+            <div class="role-info"><div class="role-title">Legal & compliance reviewer</div><div class="role-question">Who reviews regulatory exposure and vendor terms?</div><div class="role-inputs"><input type="text" placeholder="Full name"/><input type="text" placeholder="Role / title"/></div></div>
+          </div>
+          <div class="role-row">
+            <div class="role-avatar" style="background:#f3e8ff; color:#7c3aed;">CL</div>
+            <div class="role-info"><div class="role-title">Community liaison</div><div class="role-question">Who represents or contacts the affected population?</div><div class="role-inputs"><input type="text" placeholder="Name or team"/><input type="text" placeholder="Role / relationship"/></div><div class="field-hint" style="margin-top:6px;">May be external — a community partner or affected stakeholder representative.</div></div>
+          </div>
+        </div>
+        <div class="flex gap-1" style="margin-top:1.5rem; justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="regBack(3)">← Back</button>
+          <button class="btn btn-primary" onclick="regNext(5)">Continue →</button>
+        </div>
+      </div>
+      <div id="reg-s5" style="display:none;">
+        <div class="card" style="text-align:center; padding:2rem;">
+          <div style="font-size:48px; margin-bottom:1rem;">✓</div>
+          <div style="font-family:'Fraunces',serif; font-size:22px; color:var(--ink); margin-bottom:0.5rem;">Ready to register</div>
+          <p style="font-size:13px; color:var(--slate); font-weight:300; max-width:420px; margin:0 auto 1.5rem; line-height:1.7;">Submitting creates a shared system record visible to all assigned reviewers from the moment it's created — this is the tandem model in practice.</p>
+          <div class="callout" style="text-align:left; margin-bottom:1.5rem;">Ethics & privacy and legal reviewers will be notified immediately. Any auto-triggered flags from your intake answers appear in the record at registration.</div>
+          <div style="display:flex; gap:0.75rem; justify-content:center;">
+            <button class="btn btn-ghost" onclick="regBack(4)">← Back</button>
+            <button class="btn btn-primary" onclick="submitSystem()">Submit & create record →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Implementer Record (their own system) -->
+    <div id="view-impl-record" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Resume Screening Model v2.1</div>
+          <div class="page-subtitle mono" style="font-size:12px;">HR-001 · Your registered system</div>
+        </div>
+        <span class="badge badge-red" style="font-size:11px; padding:5px 10px;">🔒 Hard block — response needed from you</span>
+      </div>
+      <div class="callout danger" style="margin-bottom:1.5rem;">A hard block has been raised by the ethics & privacy reviewer. Your system cannot advance until this is resolved. You can provide additional information, re-source the data, or escalate to the governance committee via your accountable owner.</div>
+      <div class="grid-2" style="gap:1rem; align-items:start;">
+        <div>
+          <div class="card">
+            <div class="section-title">What the reviewer flagged</div>
+            <div class="flag-item" style="margin:0;">
+              <div class="flag-stripe hard"></div>
+              <div>
+                <div style="font-size:13px; font-weight:500; margin-bottom:4px;">Unauthorized training data consent basis</div>
+                <div class="text-sm" style="font-weight:300; color:var(--slate); margin-bottom:8px;">Candidate data was collected under terms covering "internal HR analytics." Model training is not covered. PIA identifies the gap — remediation or re-sourcing required.</div>
+                <span class="badge badge-muted">Raised: Marcus Webb (Ethics & Privacy) · Apr 1</span>
+              </div>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="section-title">What you can do</div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <div class="card card-sm" style="border-color:var(--border); cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div class="text-sm" style="font-weight:500; margin-bottom:2px;">Re-source training data</div>
+                <div class="text-sm text-muted" style="font-weight:300;">Obtain data under correct consent terms. Notify the ethics reviewer with documentation to close the block.</div>
+              </div>
+              <div class="card card-sm" style="border-color:var(--border); cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div class="text-sm" style="font-weight:500; margin-bottom:2px;">Submit additional information</div>
+                <div class="text-sm text-muted" style="font-weight:300;">Provide context or documentation that the reviewer may not have seen at intake.</div>
+              </div>
+              <div class="card card-sm" style="border-color:var(--border); cursor:pointer; opacity:0.6;" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div class="text-sm" style="font-weight:500; margin-bottom:2px;">Escalate dispute (via accountable owner)</div>
+                <div class="text-sm text-muted" style="font-weight:300;">You cannot override a hard block. Your accountable owner can initiate governance committee review. Override is always visible in the audit trail.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="section-title">Lifecycle status</div>
+            <div style="margin-bottom:0.5rem;">
+              <div class="lifecycle-bar">
+                <div><div class="lc-stage done"></div><div class="lc-label">Registered</div></div>
+                <div><div class="lc-stage blocked"></div><div class="lc-label">In review</div></div>
+                <div><div class="lc-stage"></div><div class="lc-label">Approved</div></div>
+                <div><div class="lc-stage"></div><div class="lc-label">Production</div></div>
+                <div><div class="lc-stage"></div><div class="lc-label">Decommission</div></div>
+              </div>
+            </div>
+            <p class="text-sm text-muted" style="font-weight:300; margin-top:0.75rem;">Blocked at "In review." Cannot advance to "Approved" while a hard block is open.</p>
+          </div>
+          <div class="card mt-2">
+            <div class="section-title">Activity on your record</div>
+            <div class="record-timeline">
+              <div class="timeline-event"><div class="timeline-dot red"></div><div class="event-time">Apr 1 · 9:14am</div><div class="event-title">Hard block raised</div><div class="event-note">Marcus Webb (Ethics & Privacy) — training data consent basis mismatch.</div></div>
+              <div class="timeline-event"><div class="timeline-dot blue"></div><div class="event-time">Mar 30 · 2:07pm</div><div class="event-title">Risk score: 78/100 — High risk</div><div class="event-note">Ethics & privacy and legal reviewers automatically assigned.</div></div>
+              <div class="timeline-event"><div class="timeline-dot blue"></div><div class="event-time">Mar 30 · 2:01pm</div><div class="event-title">Advisory flag auto-triggered</div><div class="event-note">No vendor bias audit provided at intake.</div></div>
+              <div class="timeline-event"><div class="timeline-dot green"></div><div class="event-time">Mar 30 · 1:55pm</div><div class="event-title">System registered</div><div class="event-note">Shared record created. Reviewers notified.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REVIEWER VIEWS ═══ -->
+
+    <div id="view-rev-dashboard" class="view">
+      <div class="role-banner reviewer" style="margin-bottom:1.5rem;">
+        🔍 <span><strong>Reviewer view</strong> — you see systems assigned to you for review, and flags you've raised. You do not see other business units' registries or systems not in your queue.</span>
+      </div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">My review queue</div>
+          <div class="page-subtitle">Systems assigned to you. Each requires your assessment before it can advance in the lifecycle.</div>
+        </div>
+        <span class="badge badge-amber" style="font-size:11px; padding:5px 12px;">Ethics & Privacy · Marcus Webb</span>
+      </div>
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="stat-card"><div class="stat-label">Assigned to me</div><div class="stat-value">3</div><div class="stat-sub">Systems awaiting review</div></div>
+        <div class="stat-card"><div class="stat-label">Flags I raised</div><div class="stat-value" style="color:var(--accent-red);">2</div><div class="stat-sub">1 hard block, 1 advisory</div></div>
+        <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value" style="color:var(--accent-orange);">1</div><div class="stat-sub">Response window passed</div></div>
+      </div>
+
+      <div class="card" style="border-color:rgba(192,57,43,0.3); background:#fffbfb; margin-bottom:0.75rem;">
+        <div class="flex justify-between" style="margin-bottom:1rem;">
+          <div class="section-title" style="margin:0;border:none;padding:0; color:var(--accent-red);">Requires your action — hard block open</div>
+          <span class="badge badge-red">1</span>
+        </div>
+        <div class="system-row" onclick="showView('rev-review')">
+          <div class="status-dot dot-red"></div>
+          <div class="system-name">Resume Screening Model v2.1</div>
+          <span class="badge badge-amber">Procurer</span>
+          <span class="badge badge-red">Your hard block</span>
+          <div class="system-meta">HR-001 · Raised Apr 1</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Pending review</div>
+        <div class="system-row">
+          <div class="status-dot dot-blue"></div>
+          <div class="system-name">Customer Churn Predictor</div>
+          <span class="badge badge-blue">Builder</span>
+          <span class="badge badge-orange">Your advisory flag</span>
+          <div class="system-meta">PROD-007 · 3 days remaining</div>
+        </div>
+        <div class="system-row">
+          <div class="status-dot dot-blue"></div>
+          <div class="system-name">Content Moderation Assistant</div>
+          <span class="badge badge-blue">Builder</span>
+          <span class="badge badge-muted">New assignment</span>
+          <div class="system-meta">ENG-015 · High risk</div>
+        </div>
+      </div>
+
+      <div class="card mt-2">
+        <div class="section-title">What you cannot see</div>
+        <p class="text-sm text-muted" style="font-weight:300; line-height:1.7;">Systems not assigned to your reviewer role. The legal reviewer's private notes on shared systems. Other business units' full registries. The governance committee's deliberations unless you are a member. The executive risk posture dashboard.</p>
+      </div>
+    </div>
+
+    <div id="view-rev-review" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Ethics & Privacy review</div>
+          <div class="page-subtitle mono" style="font-size:12px;">HR-001 · Resume Screening Model v2.1 · Procurer intake</div>
+        </div>
+        <span class="badge badge-red" style="padding:5px 12px;">Your hard block is active</span>
+      </div>
+      <div class="grid-2" style="gap:1rem; align-items:start;">
+        <div>
+          <div class="card">
+            <div class="section-title">Intake fields relevant to your review</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="card card-sm"><div class="text-sm text-muted">Vendor bias audit</div><div class="text-sm" style="font-weight:500; color:var(--accent-red);">Not provided</div></div>
+              <div class="card card-sm"><div class="text-sm text-muted">Training data consent basis</div><div class="text-sm" style="font-weight:500; color:var(--accent-red);">Mismatch — PIA flagged</div></div>
+              <div class="card card-sm"><div class="text-sm text-muted">Decision authority</div><div class="text-sm" style="font-weight:500;">Partially automated — shortlisting only</div></div>
+              <div class="card card-sm"><div class="text-sm text-muted">Affected population</div><div class="text-sm" style="font-weight:500;">Applicants (external, high-stakes)</div></div>
+              <div class="card card-sm"><div class="text-sm text-muted">Model card / system card</div><div class="text-sm" style="font-weight:500; color:var(--accent-red);">Not available</div></div>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="section-title">Legal reviewer's notes (shared fields only)</div>
+            <div class="callout" style="font-size:11px; margin-bottom:0.75rem;">You can see notes left on shared flag fields. Legal's private working notes are not visible to you.</div>
+            <p class="text-sm" style="font-weight:300; color:var(--slate); line-height:1.6;">Dana Okoye (Legal): "DPA reviewed — covers general processing but does not explicitly address AI model training. Recommend escalating to vendor for written clarification before approval."</p>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="border-color:rgba(192,57,43,0.3);">
+            <div class="section-title" style="color:var(--accent-red);">Your active hard block</div>
+            <div class="flag-item" style="margin:0 0 1rem;">
+              <div class="flag-stripe hard"></div>
+              <div>
+                <div style="font-size:13px; font-weight:500; margin-bottom:4px;">Unauthorized training data consent basis</div>
+                <div class="text-sm" style="font-weight:300; color:var(--slate);">Raised Apr 1, 2026 · 9:14am. System locked. Implementer has been notified.</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <button class="btn btn-danger" style="justify-content:center;">Uphold block — remediation required</button>
+              <button class="btn btn-secondary" style="justify-content:center;">Close block — remediation received</button>
+              <button class="btn btn-ghost" style="justify-content:center;">Request additional information</button>
+              <button class="btn btn-ghost" style="justify-content:center;">Convert to advisory flag</button>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="section-title">Add to record</div>
+            <div class="field"><label>Add a note to the shared audit trail</label><textarea placeholder="Your note will be visible to all reviewers and the accountable owner — not to the implementer."></textarea></div>
+            <div class="field"><label>Raise a new flag</label><select><option>Select flag type</option><option>Hard block</option><option>Advisory flag</option><option>Recommendation</option></select></div>
+            <button class="btn btn-primary btn-sm" style="margin-top:0.5rem;">Save to record</button>
+          </div>
+          <div class="callout" style="margin-top:1rem; font-size:11px;">Every action you take is permanently recorded in the immutable audit timeline and visible to all future reviewers and auditors.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ACCOUNTABLE OWNER VIEWS ═══ -->
+
+    <div id="view-owner-dashboard" class="view">
+      <div class="role-banner owner" style="margin-bottom:1.5rem;">
+        ⚖️ <span><strong>Accountable Owner view</strong> — you see all systems in your business unit, their governance status, and any items requiring your approval or escalation decision.</span>
+      </div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">HR & People — AI systems</div>
+          <div class="page-subtitle">All AI systems registered under your business unit. You hold final deployment authority for each one.</div>
+        </div>
+        <span class="badge badge-amber" style="font-size:11px; padding:5px 12px;">Sarah Chen · VP, People Operations</span>
+      </div>
+      <div class="grid-4" style="margin-bottom:1.5rem;">
+        <div class="stat-card"><div class="stat-label">Systems in unit</div><div class="stat-value">3</div><div class="stat-sub">Across all lifecycle stages</div></div>
+        <div class="stat-card"><div class="stat-label">Hard blocks</div><div class="stat-value" style="color:var(--accent-red);">1</div><div class="stat-sub">Resume Screening Model</div></div>
+        <div class="stat-card"><div class="stat-label">Awaiting your approval</div><div class="stat-value" style="color:var(--accent-orange);">1</div><div class="stat-sub">Deployment authorization</div></div>
+        <div class="stat-card"><div class="stat-label">In production</div><div class="stat-value" style="color:var(--accent-sage);">1</div><div class="stat-sub">Active &amp; monitored</div></div>
+      </div>
+
+      <div class="card" style="border-color:rgba(192,57,43,0.3); background:#fffbfb; margin-bottom:0.75rem;">
+        <div class="section-title" style="color:var(--accent-red);">Requires your decision</div>
+        <div class="system-row" onclick="showView('owner-dispute')">
+          <div class="status-dot dot-red"></div>
+          <div class="system-name">Resume Screening Model v2.1</div>
+          <span class="badge badge-red">Hard block active</span>
+          <span class="badge badge-orange">Dispute available</span>
+          <div class="system-meta">HR-001 · Ethics & Privacy block</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">All systems in your unit</div>
+        <div class="system-row">
+          <div class="status-dot dot-red"></div>
+          <div class="system-name">Resume Screening Model v2.1</div>
+          <span class="badge badge-amber">Procurer</span>
+          <span class="badge badge-red">Hard block</span>
+          <div class="system-meta mono">HR-001 · High risk</div>
+        </div>
+        <div class="system-row">
+          <div class="status-dot dot-yellow"></div>
+          <div class="system-name">Performance Review AI Assistant</div>
+          <span class="badge badge-amber">Procurer</span>
+          <span class="badge badge-orange">In review</span>
+          <div class="system-meta mono">HR-004 · Moderate risk</div>
+        </div>
+        <div class="system-row">
+          <div class="status-dot dot-green"></div>
+          <div class="system-name">Onboarding Chatbot</div>
+          <span class="badge badge-blue">Builder</span>
+          <span class="badge badge-sage" style="background:var(--accent-sage-pale);color:var(--accent-sage);">In production</span>
+          <div class="system-meta mono">HR-008 · Low risk</div>
+        </div>
+      </div>
+
+      <div class="card mt-2">
+        <div class="section-title">What you cannot see</div>
+        <p class="text-sm text-muted" style="font-weight:300; line-height:1.7;">Systems in other business units unless you are also listed as accountable owner there. The reviewer's private working notes. Governance committee deliberations unless you are a member. Org-wide risk posture aggregates — that view belongs to the executive role.</p>
+      </div>
+    </div>
+
+    <div id="view-owner-dispute" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Hard block dispute</div>
+          <div class="page-subtitle mono" style="font-size:12px;">HR-001 · Resume Screening Model v2.1</div>
+        </div>
+        <span class="badge badge-red" style="padding:5px 12px;">Override requires committee</span>
+      </div>
+      <div class="callout danger" style="margin-bottom:1.5rem;">As accountable owner, you can dispute this hard block — but you cannot override it unilaterally. Disputing escalates to the governance committee for formal review. The dispute attempt, your written rationale, and the committee's decision will all be permanently logged in the audit trail.</div>
+      <div class="grid-2" style="gap:1rem;">
+        <div>
+          <div class="card">
+            <div class="section-title">The block</div>
+            <div class="flag-item" style="margin:0;">
+              <div class="flag-stripe hard"></div>
+              <div>
+                <div style="font-size:13px; font-weight:500; margin-bottom:4px;">Unauthorized training data consent basis</div>
+                <div class="text-sm" style="font-weight:300; color:var(--slate);">Raised by Marcus Webb (Ethics & Privacy) · Apr 1, 2026. System locked at "In review."</div>
+              </div>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="section-title">Override authority rules</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="card card-sm"><div class="text-sm" style="font-weight:500; margin-bottom:2px;">Who can override</div><div class="text-sm text-muted" style="font-weight:300;">Governance committee only — your dispute triggers a formal committee review. You cannot grant the override yourself.</div></div>
+              <div class="card card-sm"><div class="text-sm" style="font-weight:500; margin-bottom:2px;">What's required</div><div class="text-sm text-muted" style="font-weight:300;">Your written rationale. Committee reviews both positions. Written decision with dissenting notes preserved.</div></div>
+              <div class="card card-sm"><div class="text-sm" style="font-weight:500; margin-bottom:2px;">What cannot be overridden</div><div class="text-sm text-muted" style="font-weight:300;">The audit trail itself. Hard blocks rooted in a direct legal prohibition. The visibility of the open block to all role holders.</div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="section-title">Submit dispute to governance committee</div>
+            <div class="field"><label>Your written rationale <span class="required-star">*</span></label><textarea rows="4" placeholder="Why do you believe the block should be overridden? What evidence or context does the reviewer not have?"></textarea><div class="field-hint">This rationale will be permanently attached to the system record and visible to all future reviewers, auditors, and regulators.</div></div>
+            <div class="field"><label>Proposed resolution path</label><select><option>Select</option><option>Override and proceed to deployment</option><option>Temporary deployment authorization (defined expiry)</option><option>Override with conditions attached</option></select></div>
+            <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+              <button class="btn btn-ghost" onclick="showView('owner-dashboard')">Cancel</button>
+              <button class="btn btn-danger" onclick="toast('Dispute submitted — governance committee notified')">Submit dispute to committee →</button>
+            </div>
+          </div>
+          <div class="callout warning" style="margin-top:1rem; font-size:11px;">Time-sensitive deployments: the committee can authorize a temporary deployment with a defined expiry date. If the block is not resolved before expiry, the system is automatically suspended.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EXECUTIVE VIEWS ═══ -->
+
+    <div id="view-exec-dashboard" class="view">
+      <div class="role-banner executive" style="margin-bottom:1.5rem;">
+        📊 <span><strong>Executive view</strong> — org-wide governance posture. You see patterns across the registry, not system-level intake detail. Committee decisions and override history are fully visible here.</span>
+      </div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">Governance posture</div>
+          <div class="page-subtitle">Organization-wide AI governance health. Updated in real time as systems move through the lifecycle.</div>
+        </div>
+        <span class="badge badge-sage" style="font-size:11px; padding:5px 12px; background:var(--accent-sage-pale); color:var(--accent-sage);">Governance Committee</span>
+      </div>
+      <div class="grid-4" style="margin-bottom:1.5rem;">
+        <div class="stat-card"><div class="stat-label">Total systems</div><div class="stat-value">7</div><div class="stat-sub">Across all units</div></div>
+        <div class="stat-card"><div class="stat-label">Open hard blocks</div><div class="stat-value" style="color:var(--accent-red);">2</div><div class="stat-sub">Blocking deployment</div></div>
+        <div class="stat-card"><div class="stat-label">Override history</div><div class="stat-value" style="color:var(--accent-orange);">1</div><div class="stat-sub">This quarter</div></div>
+        <div class="stat-card"><div class="stat-label">High risk systems</div><div class="stat-value">3</div><div class="stat-sub">42% of registry</div></div>
+      </div>
+
+      <div class="grid-2" style="gap:1rem; margin-bottom:1rem;">
+        <div class="card">
+          <div class="section-title">Systems by risk tier</div>
+          <div class="mini-bar"><div class="mini-bar-label">High risk</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:42%; background:var(--accent-red);"></div></div><div class="mini-bar-val">3</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Moderate risk</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:29%; background:var(--accent-orange);"></div></div><div class="mini-bar-val">2</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Low risk</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:29%; background:#10b981;"></div></div><div class="mini-bar-val">2</div></div>
+          <hr class="divider">
+          <div class="section-title">Systems by implementer type</div>
+          <div class="mini-bar"><div class="mini-bar-label">Builder</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:57%; background:var(--accent-blue);"></div></div><div class="mini-bar-val">4</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Procurer</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:28%; background:var(--accent-amber);"></div></div><div class="mini-bar-val">2</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Enabler</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:14%; background:var(--accent-sage);"></div></div><div class="mini-bar-val">1</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title">Lifecycle distribution</div>
+          <div class="mini-bar"><div class="mini-bar-label">Registered</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:29%; background:var(--mist);"></div></div><div class="mini-bar-val">2</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">In review</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:29%; background:var(--accent-blue);"></div></div><div class="mini-bar-val">2</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Approved</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:14%; background:var(--accent-orange);"></div></div><div class="mini-bar-val">1</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">In production</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:29%; background:#10b981;"></div></div><div class="mini-bar-val">2</div></div>
+          <hr class="divider">
+          <div class="section-title">Flag activity this quarter</div>
+          <div class="mini-bar"><div class="mini-bar-label">Hard blocks raised</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:40%; background:var(--accent-red);"></div></div><div class="mini-bar-val">2</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Advisory flags</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:100%; background:var(--accent-orange);"></div></div><div class="mini-bar-val">5</div></div>
+          <div class="mini-bar"><div class="mini-bar-label">Overrides granted</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:20%; background:#7c3aed;"></div></div><div class="mini-bar-val">1</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Override history — immutable committee record</div>
+        <div class="callout" style="margin-bottom:1rem; font-size:11px;">All overrides are permanently logged and cannot be deleted or altered. This record is available to regulators and auditors.</div>
+        <div class="flag-item" style="background:#fafafa;">
+          <div class="flag-stripe" style="background:#7c3aed;"></div>
+          <div style="flex:1;">
+            <div class="flex justify-between" style="margin-bottom:4px;">
+              <div style="font-size:13px; font-weight:500;">Override granted — Accounts Payable Automation</div>
+              <span class="badge" style="background:#f3e8ff; color:#7c3aed;">Override</span>
+            </div>
+            <div class="text-sm" style="font-weight:300; color:var(--slate); margin-bottom:8px;">Hard block (advisory flag upgraded) overridden by governance committee after formal review. Accountable owner provided written rationale. Dissenting note from ethics reviewer preserved.</div>
+            <div class="flex gap-1" style="flex-wrap:wrap;">
+              <span class="badge badge-muted">Committee vote: 3–1</span>
+              <span class="badge badge-muted">Jan 14, 2026</span>
+              <span class="badge badge-muted">Rationale on record</span>
+              <span class="badge badge-red">Dissent logged</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="section-title">Open hard blocks requiring committee attention</div>
+          <div class="system-row">
+            <div class="status-dot dot-red"></div>
+            <div class="system-name">Resume Screening Model v2.1 — consent basis block</div>
+            <span class="badge badge-orange">Dispute pending</span>
+            <div class="system-meta">HR-001</div>
+          </div>
+          <div class="system-row">
+            <div class="status-dot dot-red"></div>
+            <div class="system-name">Content Moderation Assistant — no HITL documented</div>
+            <span class="badge badge-muted">Open</span>
+            <div class="system-meta">ENG-015</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-2">
+        <div class="section-title">What you cannot see</div>
+        <p class="text-sm text-muted" style="font-weight:300; line-height:1.7;">Individual intake form responses at the field level. Reviewer working notes not shared to the audit trail. The implementer's internal communications. System-level technical documentation unless you are assigned as a reviewer. This view is deliberately aggregated — system-level detail is the responsibility of the assigned roles.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- PANEL -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()">
+  <div class="panel" onclick="event.stopPropagation()">
+    <div class="panel-header">
+      <div><div class="panel-title" id="panel-title"></div><div class="panel-subtitle" id="panel-subtitle"></div></div>
+      <div class="panel-close" onclick="closePanel()">×</div>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── ROLE CONFIG ──
+const ROLES = {
+  implementer: {
+    label: 'Implementer',
+    who: 'J. Park',
+    initials: 'JP',
+    avatarColor: 'linear-gradient(135deg, #2563a8, #5b8fd4)',
+    defaultView: 'impl-dashboard',
+    nav: [
+      { section: 'My systems', items: [
+        { label: 'My dashboard', view: 'impl-dashboard', icon: 'grid' },
+        { label: 'Register system', view: 'impl-register', icon: 'plus' },
+        { label: 'My system record', view: 'impl-record', icon: 'doc', count: '1 block', red: true },
+      ]},
+    ]
+  },
+  reviewer: {
+    label: 'Reviewer',
+    who: 'Marcus Webb',
+    initials: 'MW',
+    avatarColor: 'linear-gradient(135deg, #b45309, #d97706)',
+    defaultView: 'rev-dashboard',
+    nav: [
+      { section: 'Review work', items: [
+        { label: 'My queue', view: 'rev-dashboard', icon: 'grid' },
+        { label: 'Active review', view: 'rev-review', icon: 'flag', count: '1 block', red: true },
+      ]},
+    ]
+  },
+  owner: {
+    label: 'Accountable Owner',
+    who: 'Sarah Chen',
+    initials: 'SC',
+    avatarColor: 'linear-gradient(135deg, #c0392b, #e74c3c)',
+    defaultView: 'owner-dashboard',
+    nav: [
+      { section: 'HR & People', items: [
+        { label: 'Unit overview', view: 'owner-dashboard', icon: 'grid' },
+        { label: 'Dispute a block', view: 'owner-dispute', icon: 'flag', count: '1', red: true },
+      ]},
+    ]
+  },
+  executive: {
+    label: 'Executive',
+    who: 'Board Member',
+    initials: 'GC',
+    avatarColor: 'linear-gradient(135deg, #2d6a4f, #40916c)',
+    defaultView: 'exec-dashboard',
+    nav: [
+      { section: 'Organization', items: [
+        { label: 'Governance posture', view: 'exec-dashboard', icon: 'grid' },
+      ]},
+    ]
+  }
+};
+
+const ICONS = {
+  grid: `<rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/>`,
+  plus: `<path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  doc: `<path d="M4 2h8a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  flag: `<path d="M3 2v12M3 2l8 3-8 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>`
+};
+
+let currentRole = null;
+let currentView = null;
+
+// ── ENTRY POINTS ──
+function enterAs(role) {
+  currentRole = role;
+  document.getElementById('role-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  applyRole(role);
+}
+
+function switchRole(role) {
+  currentRole = role;
+  applyRole(role);
+}
+
+function applyRole(role) {
+  const cfg = ROLES[role];
+
+  // Update role pills
+  document.querySelectorAll('.role-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.role === role);
+  });
+
+  // Update user dot
+  const ud = document.getElementById('user-dot');
+  ud.textContent = cfg.initials;
+  ud.style.background = cfg.avatarColor;
+
+  // Rebuild sidebar
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = cfg.nav.map(section => `
+    <div class="sidebar-section">
+      <div class="sidebar-label">${section.section}</div>
+      ${section.items.map(item => `
+        <div class="nav-item" data-view="${item.view}" onclick="showView('${item.view}')">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="none">${ICONS[item.icon]}</svg>
+          ${item.label}
+          ${item.count ? `<span class="nav-count ${item.red ? 'red' : ''}">${item.count}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  // Navigate to default view
+  showView(cfg.defaultView);
+}
+
+function showView(id) {
+  currentView = id;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + id);
+  if (el) {
+    el.classList.add('active');
+    el.style.animation = 'none';
+    requestAnimationFrame(() => { el.style.animation = ''; });
+  }
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.view === id);
+  });
+  window.scrollTo(0, 0);
+  if (id === 'impl-register') resetReg();
+}
+
+function backToLogin() {
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('role-screen').style.display = 'flex';
+  currentRole = null;
+}
+
+// ── REGISTRATION FLOW ──
+let implType = null;
+
+function resetReg() {
+  implType = null;
+  showRegScreen(1);
+  updateSteps(1);
+  document.querySelectorAll('.impl-card').forEach(c => c.classList.remove('selected'));
+  const hint = document.getElementById('impl-hint');
+  if (hint) hint.style.display = 'none';
+  const btn = document.getElementById('s1-next');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+}
+
+function selectImpl(type, el) {
+  implType = type;
+  document.querySelectorAll('.impl-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const hints = {
+    builder: "You'll answer technical questions directly — model architecture, training data, bias testing. Calibrated to what an engineer actually knows.",
+    procurer: "You'll answer questions about vendor documentation — DPA, bias audits, system cards. You won't be asked for information only the vendor holds.",
+    enabler: "You'll answer questions about organizational data exposure and rollout scope — not model internals. The governance obligation shifts to what you've agreed to on behalf of your org."
+  };
+  const hint = document.getElementById('impl-hint');
+  hint.textContent = hints[type];
+  hint.style.display = 'block';
+  const btn = document.getElementById('s1-next');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+function regNext(step) {
+  if (step === 2) renderIntakeForm();
+  if (step === 3) renderRiskQuestions();
+  showRegScreen(step);
+  updateSteps(step);
+}
+
+function regBack(step) { showRegScreen(step); updateSteps(step); }
+
+function showRegScreen(n) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('reg-s' + i);
+    if (el) el.style.display = i === n ? 'block' : 'none';
+  }
+}
+
+function updateSteps(active) {
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById('step-' + i);
+    if (!s) continue;
+    s.classList.remove('active', 'done');
+    if (i < active) s.classList.add('done');
+    else if (i === active) s.classList.add('active');
+  }
+}
+
+// ── INTAKE FORM ──
+function renderIntakeForm() {
+  const c = document.getElementById('intake-form-container');
+  const forms = {
+    builder: `<div class="section-title">System identity</div>
+      <div class="grid-2"><div class="field"><label>System name <span class="required-star">*</span></label><input type="text" placeholder="e.g. Resume Classifier v2"></div><div class="field"><label>Version / ID</label><input type="text" placeholder="v1.0 / internal ID"></div></div>
+      <div class="field"><label>Plain-language description <span class="required-star">*</span></label><textarea placeholder="What does this system do and what does it output?"></textarea></div>
+      <div class="grid-2"><div class="field"><label>Business unit</label><select><option>Select</option><option>Engineering</option><option>Product</option><option>Data Science</option></select></div><div class="field"><label>Decision authority</label><select><option>Select</option><option>Fully automated</option><option>Human-in-the-loop</option><option>Advisory only</option></select></div></div>
+      <div class="field"><label>Who does this system affect? <span class="required-star">*</span></label><select><option>Select</option><option>Employees</option><option>Customers</option><option>Applicants</option><option>Internal processes only</option></select></div>
+      <hr class="divider"><div class="section-title">Data & model provenance</div>
+      <div class="grid-2"><div class="field"><label>Model architecture / framework</label><input type="text" placeholder="e.g. Fine-tuned BERT, XGBoost"></div><div class="field"><label>Training data source</label><input type="text" placeholder="Origin, consent basis, date range"></div></div>
+      <div class="field"><label>Personal / sensitive data in training?</label><select><option>Select</option><option>Yes — sensitive</option><option>Yes — non-sensitive PII</option><option>No personal data</option><option>Unknown</option></select></div>
+      <hr class="divider"><div class="section-title">Ethics & fairness</div>
+      <div class="field"><label>Bias testing completed?</label><select><option>Select</option><option>Yes — results attached</option><option>Informally reviewed</option><option>Not tested</option></select></div>`,
+    procurer: `<div class="section-title">System identity</div>
+      <div class="grid-2"><div class="field"><label>Vendor name <span class="required-star">*</span></label><input type="text" placeholder="e.g. TalentFlow Inc."></div><div class="field"><label>Product name <span class="required-star">*</span></label><input type="text" placeholder="e.g. Resume Screening Pro"></div></div>
+      <div class="field"><label>Plain-language description <span class="required-star">*</span></label><textarea placeholder="What does this tool do in your organization's context?"></textarea></div>
+      <div class="grid-2"><div class="field"><label>Business unit</label><select><option>Select</option><option>HR & People</option><option>Operations</option><option>Finance</option></select></div><div class="field"><label>Who will it affect?</label><select><option>Select</option><option>Employees</option><option>Applicants</option><option>Customers</option></select></div></div>
+      <hr class="divider"><div class="section-title">Vendor governance artifacts</div>
+      <div class="callout" style="margin-bottom:1rem;">You won't be asked for what the vendor built — only for what they've provided to you.</div>
+      <div class="field"><label>Vendor bias audit / fairness assessment? <span class="required-star">*</span></label><select><option>Select</option><option>Yes — I can attach it</option><option>No — not provided</option><option>Unknown — will request</option></select></div>
+      <div class="field"><label>Data processing agreement status</label><select><option>Select</option><option>Signed and covers AI use</option><option>Signed but AI terms unclear</option><option>Pending</option><option>None exists</option></select></div>
+      <div class="field"><label>Training data disclosed by vendor?</label><select><option>Select</option><option>Yes — documented</option><option>Partial disclosure</option><option>No disclosure</option></select></div>`,
+    enabler: `<div class="section-title">System identity</div>
+      <div class="grid-2"><div class="field"><label>Platform name <span class="required-star">*</span></label><input type="text" placeholder="e.g. Google Workspace"></div><div class="field"><label>Feature being enabled <span class="required-star">*</span></label><input type="text" placeholder="e.g. Gemini AI assistant"></div></div>
+      <div class="field"><label>Which teams will have access? <span class="required-star">*</span></label><input type="text" placeholder="e.g. All employees / Sales team only"></div>
+      <div class="field"><label>Rollout scope</label><select><option>Select</option><option>Phased pilot</option><option>Department-wide</option><option>Organization-wide</option></select></div>
+      <hr class="divider"><div class="section-title">Data exposure</div>
+      <div class="callout warning" style="margin-bottom:1rem;">The governance obligation shifts to: what data will this touch, and what did you agree to on behalf of the organization?</div>
+      <div class="field"><label>What organizational data will this feature access? <span class="required-star">*</span></label><select><option>Select</option><option>Employee emails and documents</option><option>Customer data</option><option>HR / people data</option><option>No organizational data</option><option>Mixed / unclear</option></select></div>
+      <div class="field"><label>Does enabling this share data with vendor's training pipeline?</label><select><option>Select</option><option>Yes</option><option>No — opted out</option><option>Unknown — needs review</option></select></div>
+      <div class="field"><label>Vendor AI-specific DPA terms reviewed by legal?</label><select><option>Select</option><option>Yes — reviewed and acceptable</option><option>No — legal has not reviewed</option><option>In progress</option></select></div>`
+  };
+  c.innerHTML = forms[implType] || forms.builder;
+}
+
+// ── RISK QUESTIONS ──
+const qs = [
+  { q: "Who does this system make or influence decisions about?", opts: ["Internal processes only","Employees or customers","Vulnerable or protected groups"], w: 1 },
+  { q: "What happens if the system produces a wrong output?", opts: ["Minor inconvenience, easily corrected","Significant impact, reversible","Serious harm, difficult to reverse"], w: 2 },
+  { q: "How much human review happens before the output takes effect?", opts: ["Human always reviews before action","Human reviews in some cases","Fully automated — no human review"], w: 2 },
+  { q: "Does the system use personal or sensitive data?", opts: ["No personal data","Personal but non-sensitive","Sensitive — health, financial, biometric, or protected class data"], w: 1.5 },
+  { q: "Has this system been tested for bias or disparate impact?", opts: ["Tested and documented","Informally reviewed","Not tested"], w: 1.5 }
+];
+
+function renderRiskQuestions() {
+  const c = document.getElementById('risk-questions');
+  if (!c) return;
+  c.innerHTML = qs.map((item, i) => `
+    <div class="card card-sm" style="margin-bottom:0.75rem;">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--ink);">${item.q}</div>
+      <div class="radio-group">${item.opts.map((o,j) => `<label class="radio-opt"><input type="radio" name="rq${i}" value="${j+1}" onchange="calcRisk()"> ${o}</label>`).join('')}</div>
+    </div>`).join('');
+}
+
+function calcRisk() {
+  let total = 0, possible = 0;
+  qs.forEach((item,i) => { const sel = document.querySelector(`input[name=rq${i}]:checked`); if (sel) total += parseInt(sel.value)*item.w; possible += 3*item.w; });
+  const pct = Math.round((total/possible)*100);
+  const bar = document.getElementById('risk-bar');
+  if (!bar) return;
+  bar.style.width = pct + '%';
+  let tier, color, callout;
+  if (pct < 35) { tier='Low risk'; color='#10b981'; callout='<div class="callout success">Standard review pathway. Ethics & privacy reviewer notified for a light-touch assessment.</div>'; }
+  else if (pct < 65) { tier='Moderate risk'; color='var(--accent-orange)'; callout='<div class="callout warning">Elevated review. Ethics & privacy and legal reviewers both assigned. Bias documentation requested.</div>'; }
+  else { tier='High risk'; color='var(--accent-red)'; callout='<div class="callout danger">High-risk pathway. Full review required. Ethics & privacy, legal, and technical reviewers all assigned. Community liaison recommended.</div>'; }
+  bar.style.background = color;
+  document.getElementById('tier-label').textContent = tier;
+  document.getElementById('tier-label').style.color = color;
+  document.getElementById('score-display').textContent = pct + ' / 100';
+  document.getElementById('risk-callout').innerHTML = callout;
+}
+
+function submitSystem() {
+  toast('✓ System registered — shared record created, reviewers notified');
+  setTimeout(() => showView('impl-dashboard'), 1400);
+}
+
+// ── PANEL ──
+function closePanel() { document.getElementById('panel-overlay').classList.remove('open'); }
+
+// ── TOAST ──
+function toast(msg) {
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+</body>
+</html>
