@@ -4,7 +4,8 @@ Most AI governance programs are structured as a final review. By the time legal 
 
 This is a prototype for a different approach. Legal, ethics, business teams, and engineering share the same record from intake. The intake form adapts based on how a system entered the org — built internally, procured from a vendor, or enabled as a feature inside an existing tool. Every flag, override, and approval is permanently logged and can't be altered after the fact.
 
-[View the prototype →](https://github.com/Privacywiz/In-Tandem/blob/main/Tandem_Overview.md)
+[View version 1 of prototype →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/aigov_prototype.html)
+[View version 2 of prototype →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/aigov_prototype_v2.html)
 
 The prototype includes four role views: Implementer, Reviewer, Accountable Owner, and Executive. Each sees the same underlying record, surfaced for what they actually need to do with it.
 
