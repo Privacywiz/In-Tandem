@@ -8,6 +8,8 @@ This is a prototype for a different approach. Legal, ethics, business teams, and
 
 [View version 2 of prototype →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/aigov_prototype_v2.html)
 
+[Decision Tree →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/AI%20Governance%20Decision%20Tree.html)
+
 The prototype includes four role views: Implementer, Reviewer, Accountable Owner, and Executive. Each sees the same underlying record, surfaced for what they actually need to do with it.
 
 For a written overview of how the system works, see [Tandem_Overview.md](Tandem_Overview.md).
