@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Governance Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0f1b2d;
+    --navy-mid: #1a2d45;
+    --navy-light: #243d5a;
+    --slate: #2e4a6a;
+    --steel: #3d5f82;
+    --sky: #7aafd4;
+    --sky-pale: #c5dff0;
+    --cream: #f5f0e8;
+    --cream-warm: #ede7d9;
+    --gold: #c9a84c;
+    --gold-pale: #f0e4be;
+    --sage: #5a8f7b;
+    --sage-pale: #d4ede6;
+    --amber: #c4743a;
+    --amber-pale: #f5ddc8;
+    --text-primary: #0f1b2d;
+    --text-secondary: #4a6280;
+    --text-muted: #7a95b0;
+    --border: #d8e4ef;
+    --border-light: #eaf2f8;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header band */
+  .page-header {
+    background: var(--navy);
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,175,212,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(122,175,212,0.4), transparent);
+  }
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 0.75rem;
+  }
+  .header-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .header-title em {
+    font-style: italic;
+    color: var(--sky-pale);
+  }
+  .header-desc {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--sky-pale);
+    max-width: 620px;
+    line-height: 1.75;
+    opacity: 0.85;
+  }
+
+  /* Main content */
+  .page-body {
+    padding: 2rem 2.5rem 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* Tab nav */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 2rem;
+    border-bottom: 1.5px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    padding: 10px 18px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1.5px;
+    transition: all 0.18s ease;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active {
+    color: var(--navy);
+    font-weight: 500;
+    border-bottom-color: var(--navy);
+  }
+
+  /* Tab panel */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeUp 0.25s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-intro {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin-bottom: 2rem;
+    max-width: 680px;
+    font-weight: 300;
+  }
+
+  /* Role cards */
+  .role-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 4px rgba(15,27,45,0.04);
+    transition: box-shadow 0.2s;
+  }
+  .role-card:hover { box-shadow: 0 4px 16px rgba(15,27,45,0.08); }
+
+  .role-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 1.25rem;
+  }
+  .role-avatar {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+  .avatar-blue { background: #e8f2fa; color: var(--slate); }
+  .avatar-amber { background: var(--amber-pale); color: var(--amber); }
+  .avatar-sage { background: var(--sage-pale); color: var(--sage); }
+
+  .role-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 3px;
+  }
+  .role-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .inner-card {
+    background: var(--cream);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.625rem;
+  }
+  .inner-card:last-child { margin-bottom: 0; }
+
+  .inner-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Implementer type pills */
+  .pill-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pill-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .pill {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .pill-blue { background: #daeaf7; color: #1e4d7a; }
+  .pill-amber { background: var(--amber-pale); color: #8a4a1a; }
+  .pill-sage { background: var(--sage-pale); color: #2d6355; }
+
+  .pill-text {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* Reviewer grid */
+  .reviewer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.625rem;
+  }
+
+  /* Decision tree */
+  .tree-node {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(15,27,45,0.04);
+  }
+  .tree-question {
+    font-family: 'Instrument Serif', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  .tree-branches { display: flex; flex-direction: column; gap: 8px; }
+  .tree-branch {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .branch-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .branch-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .tree-connector {
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to bottom, var(--border), transparent);
+    margin: 0 auto;
+    margin-bottom: 0;
+  }
+
+  /* Intake */
+  .intake-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .intake-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .intake-btn:hover { border-color: var(--steel); color: var(--navy); }
+  .intake-btn.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+    font-weight: 500;
+  }
+
+  .intake-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(15,27,45,0.04);
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 1rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .field-list { display: flex; flex-direction: column; gap: 8px; }
+  .field-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .field-marker {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .field-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.55;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-eyebrow">AI Governance Framework</div>
+  <h1 class="header-title">Role Taxonomy &amp; <em>Decision Architecture</em></h1>
+  <p class="header-desc">The platform distinguishes between three categories of participant — each with a distinct relationship to the AI system being governed. The implementer role is deliberately broad: it covers whoever is bringing an AI system into the organization, regardless of whether they built it, bought it, or enabled it.</p>
+</div>
+
+<div class="page-body">
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab(1, this)">Role taxonomy</button>
+    <button class="tab-btn" onclick="switchTab(2, this)">Decision tree</button>
+    <button class="tab-btn" onclick="switchTab(3, this)">Intake by implementer type</button>
+  </nav>
+
+  <!-- TAB 1: Role taxonomy -->
+  <div id="tab1" class="tab-panel active">
+
+    <!-- Implementer card -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-avatar avatar-blue">Im</div>
+        <div>
+          <div class="role-name">Implementer</div>
+          <div class="role-subtitle">The person or team bringing an AI system into the organization. Registers the system. Drives it through the lifecycle.</div>
+        </div>
+      </div>
+
+      <div class="inner-card">
+        <div class="inner-label">Who this covers</div>
+        <div class="pill-row">
+          <div class="pill-item">
+            <span class="pill pill-blue">Builder</span>
+            <span class="pill-text">An engineer or data scientist who developed the system internally. Has deep technical knowledge of the model. Completes the technical fields of the intake record directly.</span>
+          </div>
+          <div class="pill-item">
+            <span class="pill pill-amber">Procurer</span>
+            <span class="pill-text">An HR manager, operations lead, or business unit owner who selected and is deploying a third-party vendor tool — a hiring platform, a performance system, an AI assistant. May not know the model's internals. The platform surfaces different intake questions based on this context.</span>
+          </div>
+          <div class="pill-item">
+            <span class="pill pill-sage">Enabler</span>
+            <span class="pill-text">An IT administrator or department head who is turning on a capability that already exists in an approved platform — enabling Gemini across Google Workspace, activating Copilot in Microsoft 365, enabling AI features in an existing SaaS tool. The system already exists; what's being governed is the organizational deployment decision.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inner-card">
+        <div class="inner-label">What the platform does differently for each</div>
+        <p class="pill-text" style="font-size:13px;">At intake, the platform asks "how is this system coming into the organization?" — built, bought, or enabled. The answer routes the implementer to a version of the intake form calibrated to what they can actually know. A procurer cannot tell you the training data source; they can tell you what the vendor's data processing agreement says and whether a third-party audit exists. An enabler cannot tell you the model architecture; they can tell you what data the feature will touch and what the vendor's privacy controls are. The governance obligation doesn't disappear — it gets reframed around what the implementer holds.</p>
+      </div>
+    </div>
+
+    <!-- Reviewers card -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-avatar avatar-amber">Rv</div>
+        <div>
+          <div class="role-name">Reviewers</div>
+          <div class="role-subtitle">The teams whose knowledge governs whether a system is fit for deployment. Unchanged from the earlier model — but now reviewing systems brought in by a wider range of implementers.</div>
+        </div>
+      </div>
+      <div class="reviewer-grid">
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Legal &amp; compliance</div>
+          <p class="pill-text">Reviews data authorization, regulatory exposure, vendor contract terms, and jurisdictional requirements. For a procurer deploying a hiring tool, legal's role expands significantly — the vendor contract and DPA become primary governance artifacts.</p>
+        </div>
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Ethics &amp; privacy</div>
+          <p class="pill-text">Reviews bias exposure, fairness implications, PIA, and community impact. For an HR procurer enabling a hiring system, the ethics reviewer may need to request vendor bias audits as a condition of approval — even if the procurer doesn't have that documentation at intake.</p>
+        </div>
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Technical reviewer</div>
+          <p class="pill-text">For procured or enabled systems, this role may be filled by IT security or a technical lead who didn't build the system but can assess integration risks, data flows, and access controls. Separates "technical knowledge of the model" from "technical knowledge of the deployment."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stakeholders card -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-avatar avatar-sage">St</div>
+        <div>
+          <div class="role-name">Stakeholders</div>
+          <div class="role-subtitle">People with a legitimate interest in the system's governance but without a decision-making or review role in the platform.</div>
+        </div>
+      </div>
+      <div class="reviewer-grid">
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Accountable owner</div>
+          <p class="pill-text">Holds final deployment authority. In the HR hiring system scenario, this may be the CHRO or VP of Talent — not the HR business partner who procured the tool.</p>
+        </div>
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Community liaison</div>
+          <p class="pill-text">Represents or is in contact with affected populations. For a company-wide Gemini rollout, this may include employee representatives or a DEI lead who can speak to workforce impact.</p>
+        </div>
+        <div class="inner-card" style="margin-bottom:0;">
+          <div class="inner-label">Executive / board</div>
+          <p class="pill-text">Receives aggregated risk posture reports. Does not participate in individual system reviews — sees patterns across the registry, open blocks, and override history.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: Decision tree -->
+  <div id="tab2" class="tab-panel">
+    <p class="panel-intro">The decision tree now branches on implementer type before anything else — because what the platform needs to ask, and who it needs to involve, depends entirely on how the system is arriving in the organization.</p>
+
+    <div id="tree-container"></div>
+  </div>
+
+  <!-- TAB 3: Intake -->
+  <div id="tab3" class="tab-panel">
+    <p class="panel-intro">Select an implementer type to see how the intake form adapts — same governance obligation, different questions calibrated to what each implementer can actually know.</p>
+
+    <div class="intake-tabs">
+      <button id="ib1" class="intake-btn active" onclick="showIntake('builder', this)">Builder — internal AI team</button>
+      <button id="ib2" class="intake-btn" onclick="showIntake('procurer', this)">Procurer — HR buying a hiring tool</button>
+      <button id="ib3" class="intake-btn" onclick="showIntake('enabler', this)">Enabler — IT enabling Gemini</button>
+    </div>
+
+    <div id="intake-display"></div>
+  </div>
+
+</div>
+
+<script>
+// Tab switching
+function switchTab(n, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab' + n).classList.add('active');
+  el.classList.add('active');
+}
+
+// Decision tree
+const treeNodes = [
+  { q: "How is this system coming into the organization?", branches: ["Built internally", "Procured from a vendor", "Enabled within an existing platform"], dotColor: "#7aafd4" },
+  { q: "Built internally → Who is registering?", branches: ["Engineering / data science team (Builder)", "Business unit with engineering support (Procurer + Builder tandem)"], dotColor: "#7aafd4" },
+  { q: "Procured → Does a vendor bias audit exist?", branches: ["Yes → attach as governance artifact", "No → ethics reviewer raises advisory flag at intake", "Unknown → legal assigned to request from vendor"], dotColor: "#c4743a" },
+  { q: "Enabled → What organizational data will it touch?", branches: ["No org data (low risk path)", "Employee data → elevated review, HR + legal notified", "Customer data → full PIA required"], dotColor: "#5a8f7b" },
+  { q: "Regardless of type → Who is the accountable owner?", branches: ["Business unit head who will benefit from the system", "Not the implementer — the person with deployment authority", "Must be assigned before system advances from 'registered'"], dotColor: "#94a8be" }
+];
+
+document.getElementById('tree-container').innerHTML = treeNodes.map((n, i) => `
+  ${i > 0 ? '<div class="tree-connector"></div>' : ''}
+  <div class="tree-node">
+    <div class="tree-question">${n.q}</div>
+    <div class="tree-branches">
+      ${n.branches.map(b => `
+        <div class="tree-branch">
+          <span class="branch-dot" style="background:${n.dotColor};"></span>
+          <span class="branch-text">${b}</span>
+        </div>`).join('')}
+    </div>
+  </div>`).join('');
+
+// Intake forms
+const intakeForms = {
+  builder: [
+    { section: "System identity", fields: ["System name and version", "Plain-language description of purpose and outputs", "Model type — architecture, framework, training approach", "Training data sources — origin, consent basis, date range", "What population does the model make or influence decisions about?"] },
+    { section: "Decision authority", fields: ["Is the output automated or human-reviewed before action?", "What happens when the model is wrong?", "Who has authority to halt the system in production?"] },
+    { section: "Data & privacy", fields: ["Does training data include personal or sensitive data?", "Has a PIA been completed or initiated?", "Data retention and deletion plan documented?"] },
+    { section: "Ethics & fairness", fields: ["Has bias testing been run? Attach results.", "Does the outcome variable risk proxying a protected characteristic?", "Has the affected community been consulted?"] }
+  ],
+  procurer: [
+    { section: "System identity", fields: ["Vendor name and product name", "Plain-language description of what the tool does in your context", "Intended use case — how will your organization use it?", "Who will the tool make or influence decisions about?"] },
+    { section: "Vendor governance artifacts", fields: ["Does a vendor bias audit or fairness assessment exist? Attach if yes.", "What does the vendor's data processing agreement cover?", "Has the vendor disclosed training data sources?", "Does the vendor have a published model card or system card?"] },
+    { section: "Decision authority", fields: ["Is the output automated or will a human review before action?", "What is the vendor's process when the system produces a harmful output?", "Who in your organization has authority to suspend use of the tool?"] },
+    { section: "Data & privacy", fields: ["What organizational data will the vendor's system process?", "Is employee, customer, or applicant data involved?", "What are the vendor's data retention terms?"] }
+  ],
+  enabler: [
+    { section: "System identity", fields: ["Platform name and feature being enabled (e.g. Gemini in Google Workspace)", "Which organizational data will this feature have access to?", "Which teams or roles will have access?", "Is this a phased rollout or org-wide?"] },
+    { section: "Data exposure", fields: ["Will the feature process employee communications, documents, or HR data?", "Does enabling this feature share data with the vendor's training pipeline?", "What are the vendor's data processing terms for AI features specifically?"] },
+    { section: "Decision authority", fields: ["Who approved this rollout at the business unit level?", "Who is the accountable owner for this deployment organization-wide?", "What is the process for an employee to opt out or raise a concern?"] },
+    { section: "Risk calibration", fields: ["Is this feature being enabled with default vendor settings or custom configuration?", "Have security and IT reviewed integration risks?", "Has legal reviewed the vendor's AI-specific terms of service?"] }
+  ]
+};
+
+function showIntake(type, btn) {
+  document.querySelectorAll('.intake-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const form = intakeForms[type];
+  document.getElementById('intake-display').innerHTML = form.map(section => `
+    <div class="intake-section">
+      <div class="section-label">${section.section}</div>
+      <div class="field-list">
+        ${section.fields.map(f => `
+          <div class="field-item">
+            <span class="field-marker"></span>
+            <span class="field-text">${f}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+showIntake('builder', document.getElementById('ib1'));
+</script>
+</body>
+</html>
