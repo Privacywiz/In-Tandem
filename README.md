@@ -19,3 +19,5 @@ For a written overview of how the system works, see [Tandem_Overview.md](Tandem_
 The design draws on privacy by design as a governance framework — the idea that safeguards work better when they're embedded in the process architecture than when they're reviewed in at the end. Applied to AI governance, that means intake routing, shared records, and audit trails that run alongside a product through its full lifecycle, not just at launch.
 
 The ethical R&D principles developed by the R&D team and myself at [AERDF](https://www.aerdf.org) were a direct inspiration. This framework treats ethics as a structural commitment centering respect for persons, reciprocal benefit, transparency, and data minimization as binding design requirements. That thinking is what this prototype is trying to operationalize.
+
+**This is designed by a lawyer Using Claude by Anthropic, not a software engineer.
