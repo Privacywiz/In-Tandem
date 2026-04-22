@@ -4,7 +4,7 @@ Most AI governance programs are structured as a final review. By the time legal 
 
 This is a prototype for a different approach. Legal, ethics, business teams, and engineering share the same record from intake. The intake form adapts based on how a system entered the org — built internally, procured from a vendor, or enabled as a feature inside an existing tool. Every flag, override, and approval is permanently logged and can't be altered after the fact.
 
-[Demo of prototype with prentered information →](https://html-preview.github.io/?url=https://github.com/Privacywiz/In-Tandem/blob/main/aigov_integrated.html)
+[Demo of prototype with prentered information →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/aigov_integrated.html)
 
 [Decision Tree →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/AI%20Governance%20Decision%20Tree.html)
 
