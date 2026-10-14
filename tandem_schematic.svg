@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" width="1200" height="860" role="img" aria-labelledby="t d" font-family="'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif">
   <title id="t">Tandem: how a system moves from intake to production</title>
-  <desc id="d">Three entry paths feed an adaptive intake and risk scoring, which create one shared system record. Five role views read the record. The system moves through a five-stage lifecycle, and every flag, block, override and approval is kept on a permanent record of who, what and when. Counsel sits outside Tandem.</desc>
+  <desc id="d">Three entry paths feed an adaptive intake and risk scoring, which create one shared system record. Five role views read the record. The system moves through a five-stage lifecycle, and every flag, block, override and approval is kept on a permanent record of who, what and when. Escalations follow the organization's own procedures, outside Tandem.</desc>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4d5850"/></marker>
   </defs>
@@ -88,9 +88,9 @@
   <text x="68" y="748" font-size="17" font-weight="600" fill="#1b2620">A permanent record of decisions</text>
   <text x="68" y="774" font-size="14" fill="#4d5850">Every flag, block, override and approval: who, what and when. Not a place for legal advice.</text>
   <rect x="816" y="716" width="336" height="84" fill="#fffdf8" stroke="#857c6b" stroke-dasharray="5 4"/>
-  <text x="836" y="748" font-size="17" font-weight="600" fill="#1b2620">Your counsel, outside Tandem</text>
-  <text x="836" y="774" font-size="14" fill="#4d5850">The record shows only that counsel</text>
-  <text x="836" y="792" font-size="14" fill="#4d5850">was consulted, and when.</text>
+  <text x="836" y="748" font-size="17" font-weight="600" fill="#1b2620">Your procedures, outside Tandem</text>
+  <text x="836" y="774" font-size="14" fill="#4d5850">Escalations follow your own process.</text>
+  <text x="836" y="792" font-size="14" fill="#4d5850">The record holds decisions, not advice.</text>
 
   <text x="48" y="836" font-size="12" fill="#4d5850">Tandem · privacy by design applied to AI governance · Informational only, not legal advice</text>
 </svg>

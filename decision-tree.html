@@ -102,7 +102,7 @@
     <div class="group">
       <div class="group-head"><h2 class="heading-2">Reviewers</h2><p class="body-small muted">The teams that check whether a system fits the organization's policies before it ships.</p></div>
       <div class="cards">
-        <div class="card"><h3 class="heading-3">Policy reviewer</h3><p class="body-small">Checks the system against internal policies and vendor terms. When a procurer buys a hiring tool, the vendor contract and DPA become the main documents. Have your counsel review AI-specific contract terms.</p></div>
+        <div class="card"><h3 class="heading-3">Policy reviewer</h3><p class="body-small">Checks the system against internal policies and vendor terms. When a procurer buys a hiring tool, the vendor contract and DPA become the main documents.</p></div>
         <div class="card"><h3 class="heading-3">Privacy & ethics reviewer</h3><p class="body-small">Reviews bias, fairness, the privacy impact assessment and effects on the people involved. May ask the vendor for a bias audit as a condition of approval, even if the procurer didn't have one at intake.</p></div>
         <div class="card"><h3 class="heading-3">Security / technical reviewer</h3><p class="body-small">For bought or enabled systems, often IT security or a technical lead who didn't build it but can assess integrations, data flows and access controls.</p></div>
       </div>
@@ -112,14 +112,12 @@
       <div class="group-head"><h2 class="heading-2">Owners and coordinators</h2><p class="body-small muted">People who decide, coordinate or watch, without reviewing intake answers field by field.</p></div>
       <div class="cards">
         <div class="card"><h3 class="heading-3">Accountable owner</h3><p class="body-small">Holds final deployment authority. For a hiring tool, that may be the CHRO or VP of Talent, not the HR business partner who bought it.</p></div>
-        <div class="card"><h3 class="heading-3">Governance lead</h3><p class="body-small">Keeps the organization's approved policies loaded in Tandem, shows where two policies overlap, and routes findings to the right owner. Not counsel, and doesn't stand in for counsel.</p></div>
+        <div class="card"><h3 class="heading-3">Governance lead</h3><p class="body-small">Keeps the organization's approved policies loaded in Tandem, shows where two policies overlap, and routes findings to the right owner. A coordinating role, not a legal one.</p></div>
         <div class="card"><h3 class="heading-3">Community liaison</h3><p class="body-small">Represents or stays in contact with the people the system affects. For a company-wide Gemini rollout, that may include employee representatives.</p></div>
         <div class="card"><h3 class="heading-3">Executive / governance committee</h3><p class="body-small">Sees totals across the registry, open blocks and override history. Decides disputed blocks. Doesn't take part in individual reviews.</p></div>
       </div>
     </div>
 
-    <aside class="it-callout it-callout-note"><div class="it-callout-head"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="it-callout-icon" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span class="label it-callout-label">Where counsel fits</span></div>
-      <div class="body it-callout-body"><p>Counsel isn't a role in Tandem. When a question needs legal judgment, Tandem says so and sends you to your own counsel, outside the tool. The record shows only that counsel was consulted and when, never what they said.</p></div></aside>
   </section>
 
   <section id="p-tree" role="tabpanel" aria-labelledby="t-tree" hidden>
@@ -190,7 +188,7 @@ var INTAKE = {
     ['System identity', ['Platform and feature being turned on (e.g. Gemini in Google Workspace)', 'Which organizational data will the feature reach?', 'Which teams or roles get access?', 'Phased rollout or organization-wide?']],
     ['Data exposure', ['Will it process employee messages, documents or HR data?', 'Does turning it on send data to the vendor\'s training pipeline?', 'What do the vendor\'s terms say about AI features specifically?']],
     ['Decision authority', ['Who approved the rollout in the business unit?', 'Who is the accountable owner organization-wide?', 'How can an employee opt out or raise a concern?']],
-    ['Risk settings', ['Default vendor settings or a custom configuration?', 'Have security and IT reviewed integration risks?', 'Counsel consulted on the vendor\'s AI terms? Yes or no, and the date.']]
+    ['Risk settings', ['Default vendor settings or a custom configuration?', 'Have security and IT reviewed integration risks?', 'Vendor\'s AI terms reviewed under your internal procedures? Yes or no, and the date.']]
   ]
 };
 function showIntake(type, btnEl) {

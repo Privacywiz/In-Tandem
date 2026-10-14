@@ -9,7 +9,7 @@ The demo runs in your browser with a fictional adtech company, Neffy Analytics. 
 ## Try it in ten minutes
 
 1. Open the demo and pick **Implementer**. Register a system: choose Builder, Procurer or Enabler and watch the questions change.
-2. Switch to **Governance lead** (role switcher, top right). Open the findings queue for the Neffy RTB model. Each finding compares the intake to Neffy's own policy text. Give every finding a status and close the review.
+2. Switch to **Governance lead** (role switcher, top right). Open the findings queue for the Neffy RTB model. Each finding compares the intake to Neffy's own policy text. Give every finding a status (block it, accept a fix plan, assign it or escalate it) and close the review.
 3. Switch to **Implementer** and open the Neffy RTB model to see what came back.
 4. Switch to **Accountable owner** and dispute the hard block on the resume-screening model.
 5. Finish with **Executive** for the org-wide view.
@@ -33,19 +33,19 @@ The demo runs in your browser with a fictional adtech company, Neffy Analytics. 
 | Matches policy | Nothing to fix for this item. |
 | Advisory flag | Logged and visible to reviewers; the system can still advance. |
 | Hard block | The system can't advance until the block is fixed or the committee overrides it. |
-| Needs counsel | The question needs legal judgment. Talk to your counsel before the system ships. |
+| Escalated | Sent outside the review through your organization's own escalation procedure. |
 | Policy set | The version of your approved policies the system was compared against. |
 
 ## What Tandem doesn't do
 
 - It doesn't tell you what the law requires. It compares systems to **your organization's own policies**, as your organization approved them.
-- It doesn't replace your lawyers or put them in the workflow. Counsel isn't a role in Tandem.
-- It doesn't store legal advice. Where counsel was consulted, the record shows only that it happened and when. There's no field for what counsel said, and the note fields ask people not to paste it.
+- It doesn't replace your lawyers or decide when to involve them. Counsel isn't a role in Tandem.
+- It doesn't store legal advice. If your procedures involve counsel, the record can show only that counsel was consulted and when. There's no field for what counsel said, and the note fields ask people not to paste it.
 - The demo's policies, people and findings are invented. Don't copy its policy text into your own.
 
-## When to bring in your counsel
+## Escalation
 
-Before launch, for any system that's high risk, touches children's data, health data or other sensitive data, makes decisions about people (hiring, credit, housing, eligibility), or relies on a vendor's AI terms. Also whenever a finding is marked **Needs counsel**, and before your organization approves or changes the policies Tandem compares against.
+Tandem doesn't decide when a question goes to counsel or anyone else outside the review. Your organization's own procedures do. In Tandem, a finding can be marked **Escalated**, and it stays open until the outcome comes back.
 
 ## Files
 

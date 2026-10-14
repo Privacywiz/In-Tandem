@@ -24,9 +24,9 @@ Each path shows only the questions that apply, so people answer what they actual
 
 The record is created at registration and every assigned reviewer sees it from that moment. Flags, blocks, approvals and overrides all live on it, so reviews happen alongside the work instead of in a handoff at the end.
 
-Tandem compares each system's intake to the organization's **policy set**: the policies the organization has already approved, loaded as one versioned set. Each finding quotes the policy text it relies on and gets one of three labels: conflicts with policy, missing info, or matches policy. The governance lead gives each one a status (blocked, fix plan accepted, assigned, or needs counsel) before the review closes.
+Tandem compares each system's intake to the organization's **policy set**: the policies the organization has already approved, loaded as one versioned set. Each finding quotes the policy text it relies on and gets one of three labels: conflicts with policy, missing info, or matches policy. The governance lead gives each one a status (blocked, fix plan accepted, assigned, or escalated) before the review closes.
 
-Tandem takes the policy set as approved. It doesn't check whether those policies meet the law; that question belongs to the organization's counsel. The governance lead can also run an overlap check that shows where two policies give different instructions for the same case, and both policy owners decide what changes.
+Tandem takes the policy set as approved. It doesn't check whether those policies meet the law. The governance lead can also run an overlap check that shows where two policies give different instructions for the same case, and both policy owners decide what changes.
 
 ## Five views of the same record
 
@@ -36,11 +36,11 @@ The **implementer** view is about tasks: what to document, what's been flagged, 
 
 Every flag, block, override and approval is kept, with who did it and when. Nobody can quietly edit history. That holds the people making governance decisions accountable, not just the teams building systems, and when someone asks about a system six months later, the history is there instead of scattered across email.
 
-That permanence is also why the record isn't a place for legal advice. Notes on the record are operational ("asked the vendor for its bias audit on April 3"). When counsel weighs in, the record shows only that counsel was consulted and the date. What counsel said stays with counsel.
+That permanence is also why the record isn't a place for legal advice. Notes on the record are operational ("asked the vendor for its bias audit on April 3"). If the organization's procedures involve counsel, the record shows only that counsel was consulted and the date. What counsel said stays with counsel.
 
-## Where counsel fits
+## Escalation
 
-Counsel isn't a role in Tandem. When a finding needs legal judgment, it's marked **needs counsel** and the review can't close until someone records that the conversation happened. The conversation itself happens outside the tool.
+Tandem doesn't decide when to bring in counsel or anyone else outside the review. A finding the policy set can't settle is marked **escalated**, and the organization's own procedures decide where it goes and who weighs in.
 
 ---
 

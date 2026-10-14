@@ -286,12 +286,12 @@ var FINDINGS = [
     cite: 'Policy 06 §3: "The model development team is responsible for implementing signal-level filtering to prevent prohibited category data from entering model training pipelines or inference inputs."' }
 ];
 var TYPE_TAG = { conflict: ['fail', 'Conflicts with policy'], gap: ['review', 'Missing info'], pass: ['pass', 'Matches policy'] };
-var STATUS_TAG = { blocked: ['fail', 'Blocked'], fixplan: ['pass', 'Fix plan accepted'], assigned: ['review', 'Assigned'], counsel: ['review', 'Needs counsel'] };
+var STATUS_TAG = { blocked: ['fail', 'Blocked'], fixplan: ['pass', 'Fix plan accepted'], assigned: ['review', 'Assigned'], escalated: ['review', 'Escalated'] };
 var STATUS_TEXT = {
   blocked: 'Blocked. The system can\'t deploy until this is fixed.',
   fixplan: 'Fix plan accepted. Jun Quillfeather owns it, due May 3, 2026. Deployment waits for the fix.',
   assigned: 'Assigned to Jun Quillfeather to supply the missing information.',
-  counsel: 'Needs counsel. Talk to your counsel before this ships, then record below that you did.'
+  escalated: 'Escalated under your organization\'s own procedure. Deployment waits for the outcome.'
 };
 
 var POLICIES = [
@@ -352,7 +352,7 @@ function renderRoleScreen() {
     ['reviewer', 'Reviewer', 'Privacy & ethics · Policy · Security', 'You check the systems assigned to you against your organization\'s policies, raise flags, and approve or block advancement.', 'Sees assigned systems and the flags you raised.'],
     ['owner', 'Accountable owner', 'Business unit leadership', 'You hold final deployment authority for your unit\'s systems. You can dispute a block and send it to the governance committee.', 'Sees your unit\'s systems, open blocks and pending approvals.'],
     ['executive', 'Executive', 'Governance committee', 'You see patterns across every system: risk, open blocks, override history. No system-level intake detail.', 'Sees org-wide totals, the override log and committee decisions.'],
-    ['governance', 'Governance lead', 'Policy set · Findings queue', 'You keep the organization\'s approved policies loaded in Tandem, check where they overlap, and route findings to the right owners. Legal questions go to your own counsel, outside Tandem.', 'Sees the policy set, findings with policy text and review summaries.']
+    ['governance', 'Governance lead', 'Policy set · Findings queue', 'You keep the organization\'s approved policies loaded in Tandem, check where they overlap, and route findings to the right owners.', 'Sees the policy set, findings with policy text and review summaries.']
   ];
   document.getElementById('role-screen').innerHTML =
     '<p class="label muted">Interactive demo · Neffy Analytics (fictional)</p>' +
@@ -452,7 +452,7 @@ VIEWS['impl-register'] = function () {
         return '<div class="role-row"><span class="avatar">' + r[0] + '</span><div><div class="field-label" style="font-weight:600">' + r[1] + (r[3] ? ' <span class="req" aria-label="required">*</span>' : '') + '</div><p class="body-small muted" style="margin-bottom:var(--space-2)">' + r[2] + '</p>' +
           '<div class="form-grid"><div class="field"><label for="own' + i + 'n" class="body-small">Name</label><input id="own' + i + 'n" type="text"></div><div class="field"><label for="own' + i + 't" class="body-small">Role or title</label><input id="own' + i + 't" type="text"></div></div></div></div>';
       }).join('') + '</section>' +
-      '<div class="mt-6">' + callout('note', '<p>Tandem checks systems against your organization\'s own policies. It doesn\'t tell you what the law requires. Talk to your counsel about regulatory exposure before launch.</p>', { label: 'Before launch' }) + '</div>' +
+      '<div class="mt-6">' + callout('note', '<p>Tandem checks systems against your organization\'s own policies. It doesn\'t tell you what the law requires or who else needs to sign off; your internal procedures decide that.</p>', { label: 'What Tandem checks' }) + '</div>' +
       '<div class="btn-row between">' + btn('Back', 'secondary', 'md', 'regGo(3)') + btn('Continue', 'primary', 'md', 'regGo(5)') + '</div>';
   } else {
     body = '<section class="it-card"><h2 class="heading-2">Ready to register</h2><p class="body" style="margin:var(--space-4) 0">Submitting creates a shared record that every assigned reviewer sees from the start. Tandem compares your intake to the current policy set and sends any findings to the governance lead.</p>' +
@@ -475,7 +475,7 @@ function intakeForm(type) {
       f('ba', 'Vendor bias audit or fairness assessment', sel('ba', ['Yes, I can attach it', 'No, not provided', 'Unknown, will request']), true) +
       f('dpa', 'Data processing agreement status', sel('dpa', ['Signed, mentions AI use', 'Signed, AI use not mentioned', 'Pending', 'None'])) +
       f('td', 'Training data disclosed by vendor?', sel('td', ['Yes, documented', 'Partly', 'No'])) +
-      f('cc', 'Counsel consulted on the vendor\'s AI terms?', sel('cc', ['Not yet', 'Yes', 'No']), false, 'Record only whether and when. Don\'t paste what counsel said.');
+      f('cc', 'Vendor\'s AI terms reviewed under your internal procedures?', sel('cc', ['Not yet', 'Yes', 'No']), false, 'Record only whether and when. Don\'t paste anyone\'s legal analysis here.');
   }
   if (type === 'enabler') {
     return sec('System identity') + '<div class="form-grid">' + f('pl', 'Platform', inp('pl', 'e.g. Google Workspace'), true) + f('ft', 'Feature being turned on', inp('ft', 'e.g. Gemini assistant'), true) + '</div>' +
@@ -484,8 +484,8 @@ function intakeForm(type) {
       sec('Data exposure') + '<p class="body-small muted" style="margin-bottom:var(--space-4)">The questions here: what data will this touch, and what did you agree to on the organization\'s behalf?</p>' +
       f('od', 'Which organizational data will the feature reach?', sel('od', ['Employee email and documents', 'Customer data', 'HR and people data', 'No organizational data', 'Mixed or unclear']), true) +
       f('tp', 'Does turning it on send data to the vendor\'s training pipeline?', sel('tp', ['Yes', 'No, opted out', 'Unknown, needs review'])) +
-      '<div class="form-grid">' + f('cc', 'Counsel consulted on the vendor\'s AI terms?', sel('cc', ['Not yet', 'Yes', 'No'])) + f('ccd', 'Date consulted', '<input id="ccd" type="date">', false) + '</div>' +
-      '<p class="body-small hint">Record only whether and when. Don\'t paste what counsel said.</p>';
+      '<div class="form-grid">' + f('cc', 'Vendor\'s AI terms reviewed under your internal procedures?', sel('cc', ['Not yet', 'Yes', 'No'])) + f('ccd', 'Date consulted', '<input id="ccd" type="date">', false) + '</div>' +
+      '<p class="body-small hint">Record only whether and when. Don\'t paste anyone\'s legal analysis here.</p>';
   }
   return sec('System identity') + '<div class="form-grid">' + f('sn', 'System name', inp('sn', 'e.g. Resume Classifier v2'), true) + f('sv', 'Version or ID', inp('sv', 'v1.0 or internal ID')) + '</div>' +
     f('sd', 'Plain-language description', '<textarea id="sd" placeholder="What does this system do and what does it output?"></textarea>', true) +
@@ -517,7 +517,7 @@ function calcRisk() {
   var pct = Math.round(total / possible * 100), tier, msg, tone = 'note';
   if (pct < 50) { tier = 'Low risk'; msg = 'Standard path. The privacy & ethics reviewer is assigned for a light review.'; }
   else if (pct < 75) { tier = 'Moderate risk'; msg = 'Privacy & ethics and policy reviewers are assigned. Bias documentation is requested.'; }
-  else { tier = 'High risk'; tone = 'warning'; msg = 'Full review. Privacy & ethics, policy and security reviewers are assigned, and a community liaison is recommended. Talk to your counsel before launch.'; }
+  else { tier = 'High risk'; tone = 'warning'; msg = 'Full review. Privacy & ethics, policy and security reviewers are assigned, and a community liaison is recommended.'; }
   meter.style.width = pct + '%';
   meter.style.background = tone === 'warning' ? 'var(--burgundy)' : 'var(--forest)';
   document.getElementById('tier').textContent = tier;
@@ -595,9 +595,9 @@ VIEWS['rev-review'] = function () {
     '<section class="it-card"><h2 class="heading-3 it-section-title">Your hard block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted" style="margin:var(--space-2) 0 var(--space-4)">Raised Apr 1, 2026 · 9:14 AM. System locked. Implementer notified.</p>' +
     '<div class="finding-actions">' + btn('Uphold block', 'destructive', 'sm', "toast('Block upheld. Logged to the record.')") + btn('Close block: fixed', 'secondary', 'sm', "toast('Block closed. Logged to the record.')") + btn('Ask for more information', 'secondary', 'sm', "toast('Request sent to Jun Quillfeather.')") + btn('Make it advisory', 'secondary', 'sm', "toast('Converted to an advisory flag. Logged to the record.')") + '</div></section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Add to the record</h2>' +
-    '<div class="field"><label for="rnote">Operational note</label><textarea id="rnote" placeholder="e.g. Asked the vendor for its bias audit on Apr 3."></textarea><span class="body-small hint">Everyone on this record sees it, except the implementer, and it can\'t be edited. Don\'t paste legal advice here. If you talked to counsel, use the field below.</span></div>' +
+    '<div class="field"><label for="rnote">Operational note</label><textarea id="rnote" placeholder="e.g. Asked the vendor for its bias audit on Apr 3."></textarea><span class="body-small hint">Everyone on this record sees it, except the implementer, and it can\'t be edited. Don\'t paste legal advice here. If counsel was consulted, record only that, in the optional field below.</span></div>' +
     '<div class="form-grid"><div class="field"><label for="rflag">Raise a new flag</label><select id="rflag"><option>None</option><option>Hard block</option><option>Advisory flag</option><option>Recommendation</option></select></div>' +
-    '<div class="field"><label for="rcc">Counsel consulted?</label><select id="rcc"><option>No change</option><option>Yes</option><option>No</option></select></div></div>' +
+    '<div class="field"><label for="rcc">Counsel consulted? (optional)</label><select id="rcc"><option>No change</option><option>Yes</option><option>No</option></select></div></div>' +
     btn('Save to record', 'primary', 'md', "toast('Saved to the record.')") + '</section>' +
     callout('note', '<p>Every action you take is kept permanently on the record and visible to future reviewers.</p>') +
     '</div></div>';
@@ -664,7 +664,7 @@ VIEWS['exec-dashboard'] = function () {
 
 VIEWS['gov-policies'] = function () {
   return pageHead('Policy set', 'The policies Neffy has approved, loaded as the set every system is compared against.', '<div>' + asof('April 19, 2026', '2026-04-19', 'Policy set ' + POLICY_SET + ' · approved by each policy\'s owner', 'Loaded') + '</div>') +
-    callout('note', '<p>Tandem takes these policies as your organization approved them. It doesn\'t check whether they meet the law. That\'s a question for your counsel, and the answer stays with them, not in Tandem.</p>', { label: 'What Tandem assumes' }) +
+    callout('note', '<p>Tandem takes these policies as your organization approved them. It doesn\'t check whether they meet the law.</p>', { label: 'What Tandem assumes' }) +
     '<h2 class="heading-2 mt-10" style="margin-bottom:var(--space-4)">Policies</h2><div class="it-list">' + POLICIES.map(function (p) {
       return rec({ id: 'pol-' + p[0], name: esc(p[1]), reference: 'Policy ' + p[0] + ' · ' + p[2], status: ['pass', 'Loaded'], fields: [
         { label: 'Owner', html: esc(p[3]) }, { label: 'Version', html: esc(p[2]) }, { label: 'In this set since', html: 'April 19, 2026' }] });
@@ -689,10 +689,8 @@ VIEWS['gov-queue'] = function () {
     return true;
   });
   var open = openCount();
-  var needsCounsel = FINDINGS.some(function (f) { return S.findings[f.id] && S.findings[f.id].status === 'counsel'; });
-  var counselOk = !needsCounsel || (S.counsel.consulted === 'Yes' && S.counsel.date);
-  var canClose = !S.closed && open === 0 && counselOk;
-  var why = S.closed ? 'This review is closed.' : open ? 'Closing unlocks once every finding has a status (' + open + ' left).' : !counselOk ? 'A finding needs counsel. Record that counsel was consulted, with the date, to close.' : 'Ready to close.';
+  var canClose = !S.closed && open === 0;
+  var why = S.closed ? 'This review is closed.' : open ? 'Closing unlocks once every finding has a status (' + open + ' left).' : 'Ready to close.';
 
   var cards = shown.map(function (f) {
     var st = S.findings[f.id], actions;
@@ -702,7 +700,7 @@ VIEWS['gov-queue'] = function () {
       btn('Confirm block', 'destructive', 'sm', "decide('" + f.id + "','blocked')") +
       btn('Accept with fix plan', 'secondary', 'sm', "decide('" + f.id + "','fixplan')") +
       btn('Assign to owner', 'secondary', 'sm', "decide('" + f.id + "','assigned')") +
-      btn('Needs counsel', 'secondary', 'sm', "decide('" + f.id + "','counsel')") + '</div>';
+      btn('Escalate', 'secondary', 'sm', "decide('" + f.id + "','escalated')") + '</div>';
     return rec({ id: f.id, name: hl(f.title, q), reference: f.policies, status: findingStatusTag(f), open: !!S.findingOpen[f.id], fields: [
       { label: 'What Tandem found', html: hl(f.detail, q) },
       { label: 'Neffy policy text', html: '<span class="quote" style="display:block">' + hl(f.cite, q) + '</span>' },
@@ -718,12 +716,12 @@ VIEWS['gov-queue'] = function () {
     btn('Ask Jun Quillfeather for more information', 'secondary', 'md', "toast('Request sent to Jun Quillfeather.')") +
     '<span class="body-small it-count">' + shown.length + ' of ' + FINDINGS.length + ' findings · ' + open + ' open</span></div>' +
     '<div class="it-list" id="findings">' + cards + '</div>' +
-    '<div class="mt-6">' + callout('note', '<p>A finding says whether the system matches Neffy\'s policies. It doesn\'t say whether the system meets the law. Where that question comes up, mark the finding Needs counsel and talk to your counsel outside Tandem.</p>', { label: 'Plain English' }) + '</div>' +
+    '<div class="mt-6">' + callout('note', '<p>A finding says whether the system matches Neffy\'s policies. It doesn\'t say whether the system meets the law. If a finding needs more than the policy set can answer, escalate it; your organization\'s own procedures decide where it goes.</p>', { label: 'Plain English' }) + '</div>' +
     '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">Close the review</h2>' +
-    '<div class="form-grid"><div class="field"><label for="ccon">Counsel consulted for this review?</label><select id="ccon" onchange="setCounsel(\'consulted\', this.value)"' + (S.closed ? ' disabled' : '') + '>' +
+    '<div class="form-grid"><div class="field"><label for="ccon">Counsel consulted? (optional)</label><select id="ccon" onchange="setCounsel(\'consulted\', this.value)"' + (S.closed ? ' disabled' : '') + '>' +
     ['', 'Yes', 'No'].map(function (v) { return '<option value="' + v + '"' + (S.counsel.consulted === v ? ' selected' : '') + '>' + (v || 'Not yet') + '</option>'; }).join('') + '</select></div>' +
     '<div class="field"><label for="cdate">Date</label><input id="cdate" type="date" value="' + esc(S.counsel.date) + '" onchange="setCounsel(\'date\', this.value)"' + (S.closed ? ' disabled' : '') + '></div></div>' +
-    '<p class="body-small hint" style="margin-bottom:var(--space-4)">Record that the conversation happened and when. Don\'t record what counsel said; there\'s deliberately no place for it.</p>' +
+    '<p class="body-small hint" style="margin-bottom:var(--space-4)">Only if your procedures involved counsel. Record that it happened and when, never what was said; there\'s deliberately no place for it.</p>' +
     btn('Close review and export summary', 'primary', 'md', 'closeReview()', canClose ? '' : ' disabled') +
     '<p class="body-small muted" style="margin-top:var(--space-2)">' + esc(why) + '</p></section>';
 };
@@ -795,7 +793,7 @@ VIEWS['gov-summaries'] = function () {
   return pageHead('Review summaries', 'One summary per closed review: system, policy set, each finding\'s status, owner and date, and whether counsel was consulted.') +
     '<div class="it-list">' + cards.join('') + '</div>' +
     (S.closed ? '' : '<p class="body-small muted mt-6">The Neffy RTB review shows up here once it\'s closed in the findings queue.</p>') +
-    '<div class="mt-6">' + callout('note', '<p>A summary records workflow status against your own policies. It holds no signatures, no legal reasoning and nothing counsel said. If someone asks for a legal opinion on a system, that comes from counsel, not from this record.</p>', { label: 'What a summary is' }) + '</div>';
+    '<div class="mt-6">' + callout('note', '<p>A summary records workflow status against your own policies. It holds no signatures, no legal reasoning and nothing counsel said.</p>', { label: 'What a summary is' }) + '</div>';
 };
 
 renderRoleScreen();
