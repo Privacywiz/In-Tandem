@@ -21,15 +21,44 @@
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); }
   .card { background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-6); }
   .card h3 { margin-bottom: var(--space-2); }
-  .tree { list-style: none; margin: 0; padding: 0; counter-reset: q; }
-  .tree > li { position: relative; padding: 0 0 var(--space-6) var(--space-10); }
-  .tree > li::before { counter-increment: q; content: counter(q); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: var(--radius-round); background: var(--forest); color: var(--on-forest); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
-  .tree > li::after { content: ""; position: absolute; left: 13px; top: 32px; bottom: 4px; border-left: 1px solid var(--hairline); }
-  .tree > li:last-child::after { display: none; }
-  .tree-q { font-weight: 600; margin-bottom: var(--space-2); }
-  .branches { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
-  .branches li { background: var(--surface-raised); border: 1px solid var(--hairline); padding: var(--space-2) var(--space-4); }
-  .branches .arrow { color: var(--forest); font-weight: 600; }
+  /* Branching decision tree */
+  .dtree { --line: var(--border); display: flex; flex-direction: column; align-items: center; }
+  .dnode { background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-4) var(--space-6); width: 100%; position: relative; }
+  .dnode-q { font-weight: 600; }
+  .dnode .label { color: var(--forest); display: block; margin-bottom: var(--space-1); }
+  .droot { max-width: 520px; text-align: center; border-top: 2px solid var(--forest); }
+  .dend { max-width: 520px; text-align: center; background: var(--forest); color: var(--on-forest); border-color: var(--forest); }
+  .dend .label { color: var(--forest-tint); }
+  .dstem { width: 0; height: 28px; border-left: 1px solid var(--line); }
+  .dcols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); width: 100%; position: relative; padding: 28px 0; }
+  .dcols::before, .dcols::after { content: ""; position: absolute; left: calc((100% - 2 * var(--space-4)) / 6); right: calc((100% - 2 * var(--space-4)) / 6); border-top: 1px solid var(--line); }
+  .dcols::before { top: 0; }
+  .dcols::after { bottom: 0; }
+  .dcol { display: flex; flex-direction: column; align-items: stretch; position: relative; }
+  .dcol::before, .dcol::after { content: ""; position: absolute; left: 50%; height: 28px; border-left: 1px solid var(--line); }
+  .dcol::before { top: -28px; }
+  .dcol::after { bottom: -28px; }
+  .dedge { align-self: center; padding: 4px 10px; background: var(--vellum); border: 1px solid var(--hairline); margin-bottom: var(--space-2); text-align: center; }
+  .dcol .dnode { flex: 1; }
+  .douts { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .douts li { border-top: 1px solid var(--hairline); padding-top: var(--space-2); }
+  .douts .ans { font-weight: 600; display: block; }
+  .douts .res { color: var(--ink-muted); }
+  .douts .res::before { content: "→ "; color: var(--forest); font-weight: 600; }
+  .dlegend { margin-top: var(--space-6); color: var(--ink-muted); text-align: center; }
+  @media (max-width: 760px) {
+    .dcols { grid-template-columns: 1fr; padding: 0; gap: 0; }
+    .dcols::before, .dcols::after { display: none; }
+    .dcol { padding: 28px 0 0 var(--space-6); border-left: 1px solid var(--line); margin-left: 12px; }
+    .dcol:last-child { padding-bottom: 28px; }
+    .dcol::before { top: 42px; left: 0; width: var(--space-6); height: 0; border-left: 0; border-top: 1px solid var(--line); }
+    .dcol::after { display: none; }
+    .dedge { align-self: flex-start; }
+    .dstem.mid { display: none; }
+    .dtree { align-items: stretch; }
+    .dstem { align-self: flex-start; margin-left: 12px; }
+    .dcols + .dnode { margin-top: 0; }
+  }
   .type-switch { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-6); }
   .type-switch .it-btn[aria-pressed="true"] { background: var(--forest-tint); color: var(--ink); border-color: var(--forest); }
   .q-list { margin: 0; padding-left: var(--space-6); }
@@ -38,7 +67,6 @@
   @media (max-width: 560px) {
     .page { padding: var(--space-6) var(--space-4); }
     .display { font-size: 40px; line-height: 46px; }
-    .tree > li { padding-left: 40px; }
   }
 </style>
 </head>
@@ -96,7 +124,7 @@
 
   <section id="p-tree" role="tabpanel" aria-labelledby="t-tree" hidden>
     <p class="body muted" style="margin-bottom:var(--space-6)">The tree branches on how the system arrives before anything else, because that decides what Tandem can ask and who it needs to involve.</p>
-    <ol class="tree" id="tree"></ol>
+    <div class="dtree" id="tree" role="group" aria-label="Decision tree"></div>
   </section>
 
   <section id="p-intake" role="tabpanel" aria-labelledby="t-intake" hidden>
@@ -121,18 +149,29 @@ function showTab(id) {
     document.getElementById('t-' + k).setAttribute('aria-selected', k === id);
   });
 }
-var TREE = [
-  { q: 'How is this system coming into the organization?', b: [['Built internally', 'Builder path'], ['Bought from a vendor', 'Procurer path'], ['Turned on inside a platform you already use', 'Enabler path']] },
-  { q: 'Built internally: who is registering it?', b: [['The engineering or data science team', 'Builder'], ['A business unit with engineering support', 'Procurer and builder register together']] },
-  { q: 'Bought: does a vendor bias audit exist?', b: [['Yes', 'Attach it to the record'], ['No', 'Privacy & ethics reviewer raises an advisory flag at intake'], ['Unknown', 'Procurement asks the vendor for it']] },
-  { q: 'Enabled: which organizational data will it touch?', b: [['No organizational data', 'Lighter review path'], ['Employee data', 'Fuller review; HR and the privacy reviewer are notified'], ['Customer data', 'Full privacy impact assessment required']] },
-  { q: 'Whatever the type: who is the accountable owner?', b: [['The business unit head who benefits from the system', ''], ['Not the implementer, but the person with deployment authority', ''], ['Assigned before the system can leave Registered', '']] }
+var BRANCHES = [
+  { edge: 'Built internally', label: 'Builder path', q: 'Who is registering it?', outs: [
+    ['The engineering or data science team', 'Builder answers the technical intake'],
+    ['A business unit with engineering support', 'Procurer and builder register together']] },
+  { edge: 'Bought from a vendor', label: 'Procurer path', q: 'Does a vendor bias audit exist?', outs: [
+    ['Yes', 'Attach it to the record'],
+    ['No', 'Privacy & ethics reviewer raises an advisory flag at intake'],
+    ['Unknown', 'Procurement asks the vendor for it']] },
+  { edge: 'Enabled in an existing tool', label: 'Enabler path', q: 'Which organizational data will it touch?', outs: [
+    ['No organizational data', 'Lighter review path'],
+    ['Employee data', 'Fuller review; HR and the privacy reviewer are notified'],
+    ['Customer data', 'Full privacy impact assessment required']] }
 ];
-document.getElementById('tree').innerHTML = TREE.map(function (n) {
-  return '<li><p class="tree-q body">' + esc(n.q) + '</p><ul class="branches">' + n.b.map(function (b) {
-    return '<li class="body-small">' + esc(b[0]) + (b[1] ? ' <span class="arrow" aria-hidden="true">→</span> <span class="muted">' + esc(b[1]) + '</span>' : '') + '</li>';
-  }).join('') + '</ul></li>';
-}).join('');
+document.getElementById('tree').innerHTML =
+  '<div class="dnode droot"><span class="label">Start</span><p class="dnode-q body">How is this system coming into the organization?</p></div>' +
+  '<div class="dstem"></div><div class="dcols">' + BRANCHES.map(function (b) {
+    return '<div class="dcol"><span class="label dedge">' + esc(b.edge) + '</span><div class="dnode"><span class="label">' + esc(b.label) + '</span><p class="dnode-q body">' + esc(b.q) + '</p><ul class="douts body-small">' +
+      b.outs.map(function (o) { return '<li><span class="ans">' + esc(o[0]) + '</span><span class="res">' + esc(o[1]) + '</span></li>'; }).join('') + '</ul></div></div>';
+  }).join('') + '</div><div class="dstem mid"></div>' +
+  '<div class="dnode droot"><span class="label">Every path</span><p class="dnode-q body">Who is the accountable owner?</p><ul class="douts body-small" style="text-align:left">' +
+  '<li><span class="ans">The person with deployment authority</span><span class="res">Usually the business unit head who benefits, not the implementer</span></li></ul></div>' +
+  '<div class="dstem"></div>' +
+  '<div class="dnode dend"><span class="label">Then</span><p class="dnode-q body">Owner assigned, so the system can leave Registered and go to review</p></div>';
 
 var INTAKE = {
   builder: [
