@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem Decision Tree</title>
+<meta name="description" content="How Tandem routes an AI system by how it arrives: built, bought or enabled. Roles, decision tree and intake questions.">
+<link rel="stylesheet" href="assets/intandem.css">
+<style>
+  [hidden] { display: none !important; }
+  .page { max-width: 960px; margin: 0 auto; padding: var(--space-10) var(--space-4); }
+  .topnav { display: flex; gap: var(--space-4); align-items: baseline; flex-wrap: wrap; margin-bottom: var(--space-10); }
+  .wordmark { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 28px; color: var(--ink); text-decoration: none; }
+  .intro { max-width: 680px; color: var(--ink-muted); margin-bottom: var(--space-6); }
+  .tabs { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--hairline); margin: var(--space-6) 0; overflow-x: auto; }
+  .tab { font: inherit; font-size: 15px; cursor: pointer; background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--ink-muted); padding: 10px var(--space-4); white-space: nowrap; margin-bottom: -1px; }
+  .tab:hover { color: var(--forest); }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--forest); font-weight: 500; }
+  .group { margin-bottom: var(--space-10); }
+  .group-head { display: flex; gap: var(--space-4); align-items: baseline; margin-bottom: var(--space-4); flex-wrap: wrap; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); }
+  .card { background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-6); }
+  .card h3 { margin-bottom: var(--space-2); }
+  .tree { list-style: none; margin: 0; padding: 0; counter-reset: q; }
+  .tree > li { position: relative; padding: 0 0 var(--space-6) var(--space-10); }
+  .tree > li::before { counter-increment: q; content: counter(q); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: var(--radius-round); background: var(--forest); color: var(--on-forest); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+  .tree > li::after { content: ""; position: absolute; left: 13px; top: 32px; bottom: 4px; border-left: 1px solid var(--hairline); }
+  .tree > li:last-child::after { display: none; }
+  .tree-q { font-weight: 600; margin-bottom: var(--space-2); }
+  .branches { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+  .branches li { background: var(--surface-raised); border: 1px solid var(--hairline); padding: var(--space-2) var(--space-4); }
+  .branches .arrow { color: var(--forest); font-weight: 600; }
+  .type-switch { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-6); }
+  .type-switch .it-btn[aria-pressed="true"] { background: var(--forest-tint); color: var(--ink); border-color: var(--forest); }
+  .q-list { margin: 0; padding-left: var(--space-6); }
+  .q-list li { padding: 2px 0; }
+  .mt-6 { margin-top: var(--space-6); }
+  @media (max-width: 560px) {
+    .page { padding: var(--space-6) var(--space-4); }
+    .display { font-size: 40px; line-height: 46px; }
+    .tree > li { padding-left: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <nav class="topnav" aria-label="Site">
+    <a class="wordmark" href="./">Tandem</a>
+    <a class="body-small" href="./">Open the demo</a>
+    <span class="label muted">Neffy Analytics · fictional demo</span>
+  </nav>
+
+  <h1 class="heading-1">How Tandem routes a system</h1>
+  <div class="it-rule" style="margin:var(--space-4) 0"></div>
+  <p class="body intro">Tandem asks one question before anything else: how is this AI system coming into the organization? Built, bought or turned on inside a tool you already use. The answer decides who registers it, which questions they get and who reviews it.</p>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" class="tab" role="tab" id="t-roles" aria-controls="p-roles" aria-selected="true" onclick="showTab('roles')">Roles</button>
+    <button type="button" class="tab" role="tab" id="t-tree" aria-controls="p-tree" aria-selected="false" onclick="showTab('tree')">Decision tree</button>
+    <button type="button" class="tab" role="tab" id="t-intake" aria-controls="p-intake" aria-selected="false" onclick="showTab('intake')">Intake by type</button>
+  </div>
+
+  <section id="p-roles" role="tabpanel" aria-labelledby="t-roles">
+    <div class="group">
+      <div class="group-head"><h2 class="heading-2">Implementers</h2><p class="body-small muted">The person or team bringing the system in. They register it and move it through the lifecycle.</p></div>
+      <div class="cards">
+        <div class="card"><h3 class="heading-3">Builder</h3><p class="body-small">An engineer or data scientist who built the system internally. Knows the model and fills in the technical fields directly.</p></div>
+        <div class="card"><h3 class="heading-3">Procurer</h3><p class="body-small">An HR manager, ops lead or business unit owner buying a vendor's tool: a hiring platform, a performance system, an assistant. May not know the model's internals, so Tandem asks what the vendor provided instead.</p></div>
+        <div class="card"><h3 class="heading-3">Enabler</h3><p class="body-small">An IT admin or department head turning on a feature inside an approved platform, like Gemini in Google Workspace or Copilot in Microsoft 365. The system already exists; what's reviewed is the decision to turn it on here.</p></div>
+      </div>
+      <p class="body-small muted mt-6">A procurer can't tell you the training data source, but can tell you what the vendor's data processing agreement says and whether a third-party audit exists. An enabler can't describe the model, but can say what data the feature touches. The review still happens; it's built around what each person actually holds.</p>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2 class="heading-2">Reviewers</h2><p class="body-small muted">The teams that check whether a system fits the organization's policies before it ships.</p></div>
+      <div class="cards">
+        <div class="card"><h3 class="heading-3">Policy reviewer</h3><p class="body-small">Checks the system against internal policies and vendor terms. When a procurer buys a hiring tool, the vendor contract and DPA become the main documents. Have your counsel review AI-specific contract terms.</p></div>
+        <div class="card"><h3 class="heading-3">Privacy & ethics reviewer</h3><p class="body-small">Reviews bias, fairness, the privacy impact assessment and effects on the people involved. May ask the vendor for a bias audit as a condition of approval, even if the procurer didn't have one at intake.</p></div>
+        <div class="card"><h3 class="heading-3">Security / technical reviewer</h3><p class="body-small">For bought or enabled systems, often IT security or a technical lead who didn't build it but can assess integrations, data flows and access controls.</p></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2 class="heading-2">Owners and coordinators</h2><p class="body-small muted">People who decide, coordinate or watch, without reviewing intake answers field by field.</p></div>
+      <div class="cards">
+        <div class="card"><h3 class="heading-3">Accountable owner</h3><p class="body-small">Holds final deployment authority. For a hiring tool, that may be the CHRO or VP of Talent, not the HR business partner who bought it.</p></div>
+        <div class="card"><h3 class="heading-3">Governance lead</h3><p class="body-small">Keeps the organization's approved policies loaded in Tandem, shows where two policies overlap, and routes findings to the right owner. Not counsel, and doesn't stand in for counsel.</p></div>
+        <div class="card"><h3 class="heading-3">Community liaison</h3><p class="body-small">Represents or stays in contact with the people the system affects. For a company-wide Gemini rollout, that may include employee representatives.</p></div>
+        <div class="card"><h3 class="heading-3">Executive / governance committee</h3><p class="body-small">Sees totals across the registry, open blocks and override history. Decides disputed blocks. Doesn't take part in individual reviews.</p></div>
+      </div>
+    </div>
+
+    <aside class="it-callout it-callout-note"><div class="it-callout-head"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="it-callout-icon" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/></svg><span class="label it-callout-label">Where counsel fits</span></div>
+      <div class="body it-callout-body"><p>Counsel isn't a role in Tandem. When a question needs legal judgment, Tandem says so and sends you to your own counsel, outside the tool. The record shows only that counsel was consulted and when, never what they said.</p></div></aside>
+  </section>
+
+  <section id="p-tree" role="tabpanel" aria-labelledby="t-tree" hidden>
+    <p class="body muted" style="margin-bottom:var(--space-6)">The tree branches on how the system arrives before anything else, because that decides what Tandem can ask and who it needs to involve.</p>
+    <ol class="tree" id="tree"></ol>
+  </section>
+
+  <section id="p-intake" role="tabpanel" aria-labelledby="t-intake" hidden>
+    <p class="body muted" style="margin-bottom:var(--space-4)">Pick a type to see how the intake changes. Same review, different questions, matched to what each person can actually know.</p>
+    <div class="type-switch" role="group" aria-label="Implementer type">
+      <button type="button" class="it-btn it-btn-secondary it-btn-md" aria-pressed="true" onclick="showIntake('builder', this)">Builder: internal AI team</button>
+      <button type="button" class="it-btn it-btn-secondary it-btn-md" aria-pressed="false" onclick="showIntake('procurer', this)">Procurer: HR buying a hiring tool</button>
+      <button type="button" class="it-btn it-btn-secondary it-btn-md" aria-pressed="false" onclick="showIntake('enabler', this)">Enabler: IT turning on Gemini</button>
+    </div>
+    <div class="cards" id="intake"></div>
+  </section>
+
+  <aside class="it-disclaimer it-site-footer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="it-disclaimer-icon" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 3v18M7 21h10M4 7h16"/><path d="M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg>
+    <p class="body-small it-disclaimer-text"><strong>Not legal advice.</strong> Tandem is an informational demo of a workflow tool for product teams. It doesn't give legal advice, and using it doesn't create an attorney-client relationship with anyone. Neffy Analytics, its people and its policies are fictional. Confirm anything legal with your own counsel.</p></aside>
+</div>
+
+<script>
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function showTab(id) {
+  ['roles', 'tree', 'intake'].forEach(function (k) {
+    document.getElementById('p-' + k).hidden = k !== id;
+    document.getElementById('t-' + k).setAttribute('aria-selected', k === id);
+  });
+}
+var TREE = [
+  { q: 'How is this system coming into the organization?', b: [['Built internally', 'Builder path'], ['Bought from a vendor', 'Procurer path'], ['Turned on inside a platform you already use', 'Enabler path']] },
+  { q: 'Built internally: who is registering it?', b: [['The engineering or data science team', 'Builder'], ['A business unit with engineering support', 'Procurer and builder register together']] },
+  { q: 'Bought: does a vendor bias audit exist?', b: [['Yes', 'Attach it to the record'], ['No', 'Privacy & ethics reviewer raises an advisory flag at intake'], ['Unknown', 'Procurement asks the vendor for it']] },
+  { q: 'Enabled: which organizational data will it touch?', b: [['No organizational data', 'Lighter review path'], ['Employee data', 'Fuller review; HR and the privacy reviewer are notified'], ['Customer data', 'Full privacy impact assessment required']] },
+  { q: 'Whatever the type: who is the accountable owner?', b: [['The business unit head who benefits from the system', ''], ['Not the implementer, but the person with deployment authority', ''], ['Assigned before the system can leave Registered', '']] }
+];
+document.getElementById('tree').innerHTML = TREE.map(function (n) {
+  return '<li><p class="tree-q body">' + esc(n.q) + '</p><ul class="branches">' + n.b.map(function (b) {
+    return '<li class="body-small">' + esc(b[0]) + (b[1] ? ' <span class="arrow" aria-hidden="true">→</span> <span class="muted">' + esc(b[1]) + '</span>' : '') + '</li>';
+  }).join('') + '</ul></li>';
+}).join('');
+
+var INTAKE = {
+  builder: [
+    ['System identity', ['System name and version', 'Plain-language description of what it does and outputs', 'Model type: architecture, framework, training approach', 'Training data sources: origin, collection terms, date range', 'Who does the model make or influence decisions about?']],
+    ['Decision authority', ['Is the output automated, or does a person review it first?', 'What happens when the model is wrong?', 'Who can stop the system in production?']],
+    ['Data and privacy', ['Does training data include personal or sensitive data?', 'Has a privacy impact assessment been started?', 'Is there a written retention and deletion plan?']],
+    ['Fairness', ['Has bias testing been run? Attach results.', 'Could the outcome variable stand in for a protected trait?', 'Have the affected people been consulted?']]
+  ],
+  procurer: [
+    ['System identity', ['Vendor and product name', 'What the tool does in your organization', 'How your organization will use it', 'Who will the tool make or influence decisions about?']],
+    ['What the vendor provided', ['A bias audit or fairness assessment? Attach it.', 'What does the vendor\'s data processing agreement cover?', 'Has the vendor disclosed training data sources?', 'Is there a published model card or system card?']],
+    ['Decision authority', ['Is the output automated, or does a person review it first?', 'What does the vendor do when the tool produces a harmful output?', 'Who in your organization can suspend the tool?']],
+    ['Data and privacy', ['Which organizational data will the vendor process?', 'Is employee, customer or applicant data involved?', 'What are the vendor\'s retention terms?']]
+  ],
+  enabler: [
+    ['System identity', ['Platform and feature being turned on (e.g. Gemini in Google Workspace)', 'Which organizational data will the feature reach?', 'Which teams or roles get access?', 'Phased rollout or organization-wide?']],
+    ['Data exposure', ['Will it process employee messages, documents or HR data?', 'Does turning it on send data to the vendor\'s training pipeline?', 'What do the vendor\'s terms say about AI features specifically?']],
+    ['Decision authority', ['Who approved the rollout in the business unit?', 'Who is the accountable owner organization-wide?', 'How can an employee opt out or raise a concern?']],
+    ['Risk settings', ['Default vendor settings or a custom configuration?', 'Have security and IT reviewed integration risks?', 'Counsel consulted on the vendor\'s AI terms? Yes or no, and the date.']]
+  ]
+};
+function showIntake(type, btnEl) {
+  document.querySelectorAll('.type-switch .it-btn').forEach(function (b) { b.setAttribute('aria-pressed', b === btnEl); });
+  document.getElementById('intake').innerHTML = INTAKE[type].map(function (s) {
+    return '<div class="card"><h3 class="label" style="color:var(--forest);margin-bottom:var(--space-2)">' + esc(s[0]) + '</h3><ul class="q-list body-small">' + s[1].map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul></div>';
+  }).join('');
+}
+showIntake('builder', document.querySelector('.type-switch .it-btn'));
+</script>
+</body>
+</html>

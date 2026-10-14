@@ -1,21 +1,74 @@
-# In Tandem
+# Tandem
 
-Most AI governance programs are structured as a final review. By the time legal and ethics are involved, the product decisions are already made and the cost of changing anything is high enough that oversight becomes a formality.
+**[Open the demo →](https://privacywiz.github.io/In-Tandem/)** · [Decision tree →](https://privacywiz.github.io/In-Tandem/decision-tree.html) · [How it works](Tandem_Overview.md)
 
-This is a prototype for a different approach. Legal, ethics, business teams, and engineering share the same record from intake. The intake form adapts based on how a system entered the org — built internally, procured from a vendor, or enabled as a feature inside an existing tool. Every flag, override, and approval is permanently logged and can't be altered after the fact.
+Tandem is a prototype of a shared AI governance record for product, engineering and privacy teams. Instead of a review at the end, everyone works from one record from the day a system is registered until it's retired. Every flag, block, override and approval stays on it.
 
-[Demo of prototype with prentered information →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/aigov_integrated.html)
+The demo runs in your browser with a fictional adtech company, Neffy Analytics. Nothing you type is saved or sent anywhere.
 
-[Decision Tree →](https://htmlpreview.github.io/?https://github.com/Privacywiz/In-Tandem/blob/main/AI%20Governance%20Decision%20Tree.html)
+## Try it in ten minutes
 
-The prototype includes four role views: Implementer, Reviewer, Accountable Owner, and Executive. Each sees the same underlying record, surfaced for what they actually need to do with it.
+1. Open the demo and pick **Implementer**. Register a system: choose Builder, Procurer or Enabler and watch the questions change.
+2. Switch to **Governance lead** (role switcher, top right). Open the findings queue for the Neffy RTB model. Each finding compares the intake to Neffy's own policy text. Give every finding a status and close the review.
+3. Switch to **Implementer** and open the Neffy RTB model to see what came back.
+4. Switch to **Accountable owner** and dispute the hard block on the resume-screening model.
+5. Finish with **Executive** for the org-wide view.
 
-For a written overview of how the system works, see [Tandem_Overview.md](Tandem_Overview.md).
+## Who does what
+
+| Role | What they do |
+|---|---|
+| Implementer | Brings the system in: a **builder** (built it), **procurer** (bought it) or **enabler** (turned it on inside a tool you already use). Registers it and answers the intake. |
+| Reviewer | Privacy & ethics, policy, or security. Checks assigned systems against your policies, raises flags and blocks. |
+| Accountable owner | Holds final deployment authority for a business unit. Can dispute a block; only the governance committee can override one. |
+| Executive / governance committee | Sees totals across all systems and the override history. Decides disputes. |
+| Governance lead | Keeps your approved policies loaded, shows where two policies overlap, and routes findings to owners. |
+
+## What the labels mean
+
+| Label | Meaning |
+|---|---|
+| Conflicts with policy | The intake says the system does something your policy doesn't allow. |
+| Missing info | The intake left out something your policy needs before deployment. |
+| Matches policy | Nothing to fix for this item. |
+| Advisory flag | Logged and visible to reviewers; the system can still advance. |
+| Hard block | The system can't advance until the block is fixed or the committee overrides it. |
+| Needs counsel | The question needs legal judgment. Talk to your counsel before the system ships. |
+| Policy set | The version of your approved policies the system was compared against. |
+
+## What Tandem doesn't do
+
+- It doesn't tell you what the law requires. It compares systems to **your organization's own policies**, as your organization approved them.
+- It doesn't replace your lawyers or put them in the workflow. Counsel isn't a role in Tandem.
+- It doesn't store legal advice. Where counsel was consulted, the record shows only that it happened and when. There's no field for what counsel said, and the note fields ask people not to paste it.
+- The demo's policies, people and findings are invented. Don't copy its policy text into your own.
+
+## When to bring in your counsel
+
+Before launch, for any system that's high risk, touches children's data, health data or other sensitive data, makes decisions about people (hiring, credit, housing, eligibility), or relies on a vendor's AI terms. Also whenever a finding is marked **Needs counsel**, and before your organization approves or changes the policies Tandem compares against.
+
+## Files
+
+| File | What it is |
+|---|---|
+| `index.html` | The interactive demo |
+| `decision-tree.html` | Roles, the routing decision tree and intake questions by type |
+| `Tandem_Overview.md` | How the system works, in prose |
+| `tandem_schematic.svg` | One-page diagram |
+| `assets/intandem.css` | Styles from the InTandem design system |
+
+Everything is static HTML. Download the repo and open `index.html`, or fork it and turn on GitHub Pages.
 
 ## Background
 
-The design draws on privacy by design as a governance framework — the idea that safeguards work better when they're embedded in the process architecture than when they're reviewed in at the end. Applied to AI governance, that means intake routing, shared records, and audit trails that run alongside a product through its full lifecycle, not just at launch.
+The design comes from privacy by design: safeguards work better built into the process than reviewed in at the end. Applied to AI governance, that means intake routing, a shared record and a decision log that run alongside a product for its whole life.
 
-The ethical R&D principles developed by the R&D team and myself at [AERDF](https://www.aerdf.org) were a direct inspiration. This framework treats ethics as a structural commitment centering respect for persons, reciprocal benefit, transparency, and data minimization as binding design requirements. That thinking is what this prototype is trying to operationalize.
+The ethical R&D principles developed by the R&D team at [AERDF](https://www.aerdf.org) were a direct inspiration. They treat respect for persons, reciprocal benefit, transparency and data minimization as binding design requirements, and this prototype tries to put that into practice.
 
-**This is designed by a lawyer Using Claude by Anthropic, not a software engineer.
+Built by Asia Parks with Claude by Anthropic. Asia is a privacy attorney, but publishing this prototype doesn't make her your lawyer.
+
+## Disclaimer
+
+Informational only. Not legal advice. Using Tandem or this repository doesn't create an attorney-client relationship with anyone. Confirm anything legal with your own counsel.
+
+Released under CC0 1.0 (see `LICENSE`).

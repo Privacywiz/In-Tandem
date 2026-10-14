@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem Demo</title>
+<meta name="description" content="Tandem: a shared AI governance record for product, engineering and privacy teams. Interactive demo with a fictional company.">
+<link rel="stylesheet" href="assets/intandem.css">
+<style>
+  /* App layout, built from InTandem tokens */
+  [hidden] { display: none !important; }
+
+  /* Role screen */
+  .role-screen { max-width: 960px; margin: 0 auto; padding: var(--space-10) var(--space-4); }
+  .role-screen .display { margin-bottom: var(--space-2); }
+  .role-intro { max-width: 640px; color: var(--ink-muted); margin: var(--space-4) 0 var(--space-6); }
+  .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4); }
+  .role-card { text-align: left; font: inherit; color: inherit; cursor: pointer; background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); transition: box-shadow .16s ease; }
+  .role-card:hover { box-shadow: var(--shadow-lifted); }
+  .role-card .role-who { color: var(--forest); }
+  .role-card .role-sees { color: var(--ink-muted); border-top: 1px solid var(--hairline); padding-top: var(--space-2); margin-top: auto; }
+  .role-note { color: var(--ink-muted); margin: var(--space-6) 0; max-width: 640px; }
+
+  /* Shell */
+  .topbar { background: var(--surface-raised); border-bottom: 1px solid var(--hairline); box-shadow: var(--shadow-soft); position: sticky; top: 0; z-index: 10; }
+  .topbar-inner { display: flex; align-items: center; gap: var(--space-4); padding: 10px var(--space-6); flex-wrap: wrap; }
+  .wordmark { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 28px; color: var(--ink); text-decoration: none; }
+  .demo-badge { color: var(--ink-muted); }
+  .role-pills { display: flex; gap: var(--space-1); margin-left: auto; flex-wrap: wrap; }
+  .role-pill { font: inherit; cursor: pointer; background: transparent; color: var(--ink-muted); border: 1px solid transparent; padding: 6px 10px; }
+  .role-pill:hover { color: var(--forest); border-color: var(--hairline); }
+  .role-pill[aria-pressed="true"] { background: var(--forest-tint); color: var(--ink); border-color: var(--forest-tint); }
+  .role-select { display: none; margin-left: auto; }
+  .avatar { width: 32px; height: 32px; border-radius: var(--radius-round); background: var(--forest); color: var(--on-forest); display: grid; place-items: center; font-size: 12px; font-weight: 600; flex: none; }
+
+  .shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 53px); }
+  .sidenav { border-right: 1px solid var(--hairline); padding: var(--space-6) var(--space-4); background: var(--surface); }
+  .sidenav-label { color: var(--ink-muted); padding: 0 var(--space-2); margin-bottom: var(--space-2); }
+  .nav-list { display: flex; flex-direction: column; gap: 2px; }
+  .nav-item { font: inherit; font-size: 15px; text-align: left; cursor: pointer; border: 0; background: transparent; color: var(--ink); padding: 8px var(--space-2); display: flex; align-items: center; gap: var(--space-2); text-decoration: none; }
+  .nav-item:hover { background: var(--vellum); }
+  .nav-item[aria-current="page"] { background: var(--forest-tint); font-weight: 500; }
+  .nav-count { margin-left: auto; font-size: 11px; line-height: 16px; padding: 1px 6px; background: var(--burgundy-tint); color: var(--ink); white-space: nowrap; }
+  .nav-sep { border-top: 1px solid var(--hairline); margin: var(--space-4) 0; }
+  .main { padding: var(--space-10) var(--space-6); max-width: 1040px; width: 100%; }
+
+  /* Views */
+  .view-banner { display: flex; gap: var(--space-2); align-items: flex-start; color: var(--ink-muted); background: var(--vellum); padding: var(--space-2) var(--space-4); margin-bottom: var(--space-6); }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+  .stat { background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-4) var(--space-6); }
+  .stat-value { font-family: var(--font-display); font-weight: 600; font-size: 36px; line-height: 44px; }
+  .stat-sub { color: var(--ink-muted); }
+  .stack { display: flex; flex-direction: column; gap: var(--space-4); }
+  .mt-6 { margin-top: var(--space-6); }
+  .mt-10 { margin-top: var(--space-10); }
+
+  .sys-row { display: flex; align-items: center; gap: 12px; padding: var(--space-4) 0; border-bottom: 1px solid var(--hairline); flex-wrap: wrap; }
+  .sys-row:last-child { border-bottom: 0; }
+  .sys-row-name { font-weight: 500; min-width: 0; flex: 1 1 220px; }
+  button.sys-row { width: 100%; font: inherit; color: inherit; text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--hairline); cursor: pointer; }
+  button.sys-row:hover .sys-row-name { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+  .sys-row-meta { color: var(--ink-muted); }
+
+  .lifecycle { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-1); }
+  .lc-bar { height: 6px; background: var(--stone); }
+  .lc-done .lc-bar { background: var(--forest); }
+  .lc-active .lc-bar { background: var(--bronze); }
+  .lc-blocked .lc-bar { background: var(--burgundy); }
+  .lc-label { font-size: 12px; line-height: 16px; color: var(--ink-muted); margin-top: 6px; overflow-wrap: anywhere; }
+  .lc-active .lc-label, .lc-blocked .lc-label { color: var(--ink); font-weight: 600; }
+
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { position: relative; padding: 0 0 var(--space-4) var(--space-6); border-left: 1px solid var(--hairline); margin-left: 5px; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -5px; top: 6px; width: 9px; height: 9px; background: var(--forest); }
+  .timeline li.t-block::before { background: var(--burgundy); }
+  .timeline li.t-flag::before { background: var(--bronze); }
+  .t-time { color: var(--ink-muted); }
+  .t-title { font-weight: 500; }
+
+  .option-list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .option { border: 1px solid var(--hairline); padding: var(--space-4); background: var(--surface-raised); }
+  .option-title { font-weight: 500; }
+
+  /* Forms */
+  .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-4); }
+  .field label, .field .field-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+  .field input, .field select, .field textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; width: 100%; min-width: 0; }
+  .field textarea { min-height: 88px; resize: vertical; }
+  .hint { color: var(--ink-muted); }
+  .req { color: var(--burgundy); }
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
+  .form-section { margin: var(--space-6) 0 var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--hairline); }
+  .form-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .btn-row { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; margin-top: var(--space-6); }
+  .btn-row.between { justify-content: space-between; }
+
+  .steps { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; counter-reset: step; }
+  .step { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); padding: 6px 10px; border: 1px solid var(--hairline); background: var(--surface-raised); }
+  .step-num { width: 22px; height: 22px; border-radius: var(--radius-round); display: grid; place-items: center; font-size: 12px; font-weight: 600; background: var(--stone); color: var(--ink); }
+  .step.is-active { color: var(--ink); border-color: var(--forest); }
+  .step.is-active .step-num { background: var(--forest); color: var(--on-forest); }
+  .step.is-done .step-num { background: var(--forest-tint); }
+
+  .type-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+  .type-card { font: inherit; color: inherit; text-align: left; cursor: pointer; background: var(--surface-raised); border: 1px solid var(--hairline); box-shadow: var(--shadow-soft); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
+  .type-card[aria-pressed="true"] { border-color: var(--forest); box-shadow: var(--shadow-lifted); background: linear-gradient(135deg, var(--forest-tint) 0%, var(--surface-raised) 100%); }
+
+  .risk-q { border: 1px solid var(--hairline); padding: var(--space-4); margin-bottom: var(--space-2); background: var(--surface-raised); }
+  .risk-q fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .risk-q legend { font-weight: 500; margin-bottom: var(--space-2); padding: 0; }
+  .radio { display: flex; gap: var(--space-2); align-items: flex-start; padding: 4px 0; cursor: pointer; }
+  .radio input { margin-top: 5px; accent-color: var(--forest); }
+  .meter { height: 8px; background: var(--stone); margin: var(--space-2) 0; }
+  .meter-fill { height: 100%; background: var(--forest); width: 0; transition: width .2s ease; }
+  .tier { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 32px; }
+
+  .role-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: var(--space-4); padding: var(--space-4) 0; border-bottom: 1px solid var(--hairline); }
+  .role-row:last-child { border-bottom: 0; }
+  .role-row .avatar { background: var(--vellum); color: var(--ink); }
+
+  .bars { display: flex; flex-direction: column; gap: var(--space-2); }
+  .bar-row { display: grid; grid-template-columns: 140px minmax(0, 1fr) 28px; gap: var(--space-2); align-items: center; }
+  .bar-track { height: 10px; background: var(--stone); }
+  .bar-fill { height: 100%; background: var(--forest); }
+  .bar-val { text-align: right; font-weight: 600; }
+
+  .finding-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .quote { font-family: var(--font-sans); border-left: 2px solid var(--hairline); padding-left: var(--space-4); color: var(--ink); }
+  .counsel-chip { display: inline-flex; gap: var(--space-2); align-items: center; padding: 3px 8px; background: var(--stone); }
+
+  .toasts { position: fixed; bottom: var(--space-6); right: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); z-index: 50; max-width: calc(100vw - 32px); }
+  .toast { background: var(--ink); color: var(--surface-raised); padding: 10px 16px; box-shadow: var(--shadow-lifted); font-size: 14px; line-height: 20px; }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidenav { border-right: 0; border-bottom: 1px solid var(--hairline); padding: var(--space-2) var(--space-4); overflow-x: auto; }
+    .sidenav-label, .nav-sep, .nav-extra { display: none; }
+    .nav-list { flex-direction: row; gap: var(--space-1); }
+    .nav-item { white-space: nowrap; }
+    .role-pills { display: none; }
+    .role-select { display: inline-flex; }
+    .main { padding: var(--space-6) var(--space-4); }
+    .grid-2, .form-grid, .type-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .display { font-size: 40px; line-height: 46px; }
+    .heading-1 { font-size: 28px; line-height: 34px; }
+    .topbar-inner { padding: 8px var(--space-4); gap: var(--space-2); }
+    .demo-badge { display: none; }
+    .bar-row { grid-template-columns: 110px minmax(0, 1fr) 24px; }
+    .it-toolbar .it-count { margin-left: 0; flex-basis: 100%; }
+    .it-card { padding: var(--space-4); }
+  }
+</style>
+</head>
+<body>
+
+<div id="role-screen" class="role-screen"></div>
+<div id="app" hidden>
+  <header class="topbar"><div class="topbar-inner" id="topbar"></div></header>
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Sections"></nav>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+/* ───────── helpers ───────── */
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var PATHS = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  cross: '<path d="M7 7l10 10M17 7L7 17"/>',
+  clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 2"/>',
+  dot: '<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
+  pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 7l3 3"/>',
+  alert: '<path d="M12 3.5L21.5 20h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r="0.9" fill="currentColor" stroke="none"/>',
+  seal: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.5"/><path d="M9.6 12.2l1.7 1.7 3.2-3.4"/>',
+  scales: '<path d="M12 3v18M7 21h10M4 7h16"/><path d="M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  down: '<path d="M6 9l6 6 6-6"/>',
+  right: '<path d="M9 6l6 6-6 6"/>',
+  lock: '<rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  out: '<path d="M14 5h5v5M19 5l-8 8M17 14v5H5V7h5"/>'
+};
+function icon(name, size, cls) {
+  return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true" class="' + (cls || '') + '" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">' + PATHS[name] + '</svg>';
+}
+var TAG_ICON = { pass: 'check', fail: 'cross', review: 'clock', neutral: 'dot' };
+function tag(tone, text) { return '<span class="label it-tag it-tag-' + tone + '">' + icon(TAG_ICON[tone], 12, 'it-tag-icon') + esc(text) + '</span>'; }
+function btn(text, variant, size, onclick, extra) {
+  return '<button type="button" class="it-btn it-btn-' + (variant || 'primary') + ' it-btn-' + (size || 'md') + '"' + (onclick ? ' onclick="' + onclick + '"' : '') + (extra || '') + '>' + text + '</button>';
+}
+var CALLOUT = { note: ['pen', 'Note'], warning: ['alert', 'Warning'], featured: ['seal', 'Key provision'] };
+function callout(tone, bodyHtml, opts) {
+  opts = opts || {};
+  return '<aside class="it-callout it-callout-' + tone + (opts.cls ? ' ' + opts.cls : '') + '"' + (tone === 'warning' ? ' role="note"' : '') + '>' +
+    '<div class="it-callout-head">' + icon(CALLOUT[tone][0], 20, 'it-callout-icon') + '<span class="label it-callout-label">' + (opts.label || CALLOUT[tone][1]) + '</span>' +
+    (opts.reference ? '<span class="label it-callout-ref">' + esc(opts.reference) + '</span>' : '') + '</div>' +
+    (opts.title ? '<h3 class="heading-3 it-callout-title">' + esc(opts.title) + '</h3>' : '') +
+    '<div class="body it-callout-body">' + bodyHtml + '</div></aside>';
+}
+function asof(date, iso, source, verb) {
+  return '<p class="label it-asof">' + icon('clock', 14, 'it-asof-icon') + '<span>' + esc(verb || 'Checked') + ' <time datetime="' + iso + '">' + esc(date) + '</time></span>' +
+    (source ? '<span class="it-asof-source">· ' + esc(source) + '</span>' : '') + '</p>';
+}
+function pageHead(title, subtitle, after) {
+  return '<div class="it-page-head"><h1 class="heading-1">' + esc(title) + '</h1><div class="it-rule"></div>' +
+    (subtitle ? '<p class="body muted">' + subtitle + '</p>' : '') + (after || '') + '</div>';
+}
+function rec(o) {
+  var fields = o.fields.map(function (f) {
+    return '<div class="it-rec-field"><dt class="label it-rec-label">' + esc(f.label) + '</dt><dd class="body-small it-rec-value">' + f.html + '</dd></div>';
+  }).join('');
+  return '<details class="it-rec" id="rec-' + o.id + '"' + (o.open ? ' open' : '') + ' ontoggle="cardToggled(\'' + o.id + '\', this.open)">' +
+    '<summary class="it-rec-summary">' + icon('right', 16, 'it-rec-chevron') + '<span class="it-rec-name">' + o.name + '</span>' +
+    (o.status ? tag(o.status[0], o.status[1]) : '') + (o.reference ? '<span class="it-rec-ref">' + esc(o.reference) + '</span>' : '') +
+    '</summary><dl class="it-rec-fields">' + fields + '</dl></details>';
+}
+function disclaimer() {
+  return '<aside class="it-disclaimer it-site-footer">' + icon('scales', 20, 'it-disclaimer-icon') +
+    '<p class="body-small it-disclaimer-text"><strong>Not legal advice.</strong> Tandem is an informational demo of a workflow tool for product teams. It doesn\'t give legal advice, and using it doesn\'t create an attorney-client relationship with anyone. Neffy Analytics, its people and its policies are fictional. Confirm anything legal with your own counsel.</p></aside>';
+}
+function lifecycle(state) {
+  var stages = ['Registered', 'In review', 'Approved', 'Production', 'Decommission'];
+  return '<div class="lifecycle" role="list">' + stages.map(function (s, i) {
+    var c = state[i] || '';
+    var word = c === 'done' ? ' (complete)' : c === 'active' ? ' (current)' : c === 'blocked' ? ' (blocked)' : '';
+    return '<div class="lc-' + (c || 'todo') + '" role="listitem"><div class="lc-bar"></div><div class="lc-label">' + s + '<span class="sr-only" style="position:absolute;left:-9999px">' + word + '</span></div></div>';
+  }).join('') + '</div>';
+}
+function timeline(items) {
+  return '<ol class="timeline">' + items.map(function (t) {
+    return '<li class="' + (t.kind ? 't-' + t.kind : '') + '"><div class="body-small t-time">' + esc(t.time) + '</div><div class="t-title">' + esc(t.title) + '</div>' + (t.note ? '<div class="body-small muted">' + esc(t.note) + '</div>' : '') + '</li>';
+  }).join('') + '</ol>';
+}
+function stat(label, value, sub) { return '<div class="stat"><div class="label muted">' + esc(label) + '</div><div class="stat-value">' + esc(value) + '</div><div class="body-small stat-sub">' + esc(sub) + '</div></div>'; }
+function toast(msg) {
+  var w = document.getElementById('toasts'), t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg; w.appendChild(t);
+  setTimeout(function () { t.remove(); }, 3800);
+}
+function nowLabel() { return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+
+/* ───────── roles ───────── */
+var ROLES = {
+  implementer: { label: 'Implementer', who: 'J. Park', title: 'Product lead', initials: 'JP', home: 'impl-dashboard',
+    nav: [['impl-dashboard', 'My systems'], ['impl-register', 'Register a system'], ['impl-rtb', 'Neffy RTB model'], ['impl-record', 'Resume screening', '1 block']] },
+  reviewer: { label: 'Reviewer', who: 'Marcus Webb', title: 'Privacy & ethics reviewer', initials: 'MW', home: 'rev-dashboard',
+    nav: [['rev-dashboard', 'My review queue'], ['rev-review', 'Active review', '1 block']] },
+  owner: { label: 'Accountable owner', who: 'Sarah Chen', title: 'VP, People Operations', initials: 'SC', home: 'owner-dashboard',
+    nav: [['owner-dashboard', 'Unit overview'], ['owner-dispute', 'Dispute a block', '1']] },
+  executive: { label: 'Executive', who: 'Governance committee', title: 'Org-wide view', initials: 'GC', home: 'exec-dashboard',
+    nav: [['exec-dashboard', 'Governance posture']] },
+  governance: { label: 'Governance lead', who: 'Priya Natarajan', title: 'Governance lead', initials: 'PN', home: 'gov-queue',
+    nav: [['gov-policies', 'Policy set'], ['gov-queue', 'Findings queue', 'open'], ['gov-summaries', 'Review summaries']] }
+};
+var ROLE_ORDER = ['implementer', 'reviewer', 'owner', 'executive', 'governance'];
+
+/* ───────── demo data ───────── */
+var POLICY_SET = 'v2026.04.19-001';
+var FINDINGS = [
+  { id: 'health-signals', type: 'conflict', title: 'Pharmacy and health browsing signals are a prohibited input', policies: 'Policy 06 §2, §4',
+    detail: 'The intake lists pharmacy and health-content browsing as an active model input. Neffy\'s Sensitive Data Policy prohibits health-related behavioral signals, including pharmacy browsing, with no business-case exceptions. Policy 02 in this policy set says CPO sign-off doesn\'t create an exception, so the input has to come out.',
+    cite: 'Policy 06 §2: "Health and medical data including data inferred from pharmacy browsing…prohibited." §4: "There are no business-case exceptions to these prohibitions."' },
+  { id: 'inventory-age', type: 'conflict', title: 'Open-web inventory without model-level age exclusions', policies: 'Policy 08 §4',
+    detail: 'The intake says the model runs on open-web and mobile app inventory, with age exclusions left to each advertiser\'s campaign settings. Neffy\'s Children\'s Data Policy requires exclusions in the model itself; campaign settings alone don\'t satisfy it.',
+    cite: 'Policy 08 §4: "Inventory exclusions must be implemented at the model level, not delegated solely to advertiser campaign settings."' },
+  { id: 'purpose', type: 'pass', title: 'Attribution sharing matches the Privacy Policy\'s listed purposes', policies: 'Policy 03 §3',
+    detail: 'The current Privacy Policy lists campaign measurement and attribution, including sharing impression and conversion signals with measurement partners, as a processing purpose. The intake\'s attribution sharing falls inside it.',
+    cite: 'Policy 03 §3: "Neffy processes personal data for…campaign measurement and attribution, including sharing impression and conversion signals with measurement partners."' },
+  { id: 'retention', type: 'gap', title: 'Training data retention period is blank', policies: 'Policy 01 §3',
+    detail: 'Neffy\'s Data Governance Policy limits training data built from behavioral logs to 90 days unless the Chief Data Officer approves a longer period in writing. The intake left the retention field empty. The builder needs to state the period, and get CDO approval if it runs past 90 days.',
+    cite: 'Policy 01 §3: "Training datasets derived from behavioral logs are subject to the same 90-day retention limit…unless a documented business justification…is approved in writing by the Chief Data Officer."' },
+  { id: 'consent', type: 'gap', title: 'No independent consent check where minors may be in the audience', policies: 'Policy 04 §3',
+    detail: 'Neffy\'s Cookie and Consent Policy lets the model rely on upstream consent signals for adult inventory only. Where minors could be in the audience, the Children\'s Data Policy\'s independent check applies. The intake doesn\'t describe one.',
+    cite: 'Policy 04 §3: "For inventory environments where the Children\'s Data and Age Verification Policy applies…Neffy\'s independent verification obligation supersedes the upstream reliance standard in this section."' },
+  { id: 'model-card', type: 'gap', title: 'Model card is incomplete, so the deployment gate can\'t open', policies: 'Policy 07 §3',
+    detail: 'Neffy\'s Model Card Policy sets a two-step gate: the responsible owner defines inventory scope in the model card, then the inventory risk assessment gets its required sign-offs. The intake says the model card is still in progress, so neither step can happen yet.',
+    cite: 'Policy 07 §3: "Both approvals must be logged in the system record before deployment proceeds."' },
+  { id: 'filtering', type: 'conflict', title: 'No filtering keeps prohibited categories out of the pipeline', policies: 'Policy 06 §3',
+    detail: 'Neffy\'s Sensitive Data Policy makes the model team responsible for signal-level filtering that keeps prohibited data out of training and inference. The intake says no filtering is in place. It has to be built, documented in the model card and reviewed by the CPO before deployment.',
+    cite: 'Policy 06 §3: "The model development team is responsible for implementing signal-level filtering to prevent prohibited category data from entering model training pipelines or inference inputs."' }
+];
+var TYPE_TAG = { conflict: ['fail', 'Conflicts with policy'], gap: ['review', 'Missing info'], pass: ['pass', 'Matches policy'] };
+var STATUS_TAG = { blocked: ['fail', 'Blocked'], fixplan: ['pass', 'Fix plan accepted'], assigned: ['review', 'Assigned'], counsel: ['review', 'Needs counsel'] };
+var STATUS_TEXT = {
+  blocked: 'Blocked. The system can\'t deploy until this is fixed.',
+  fixplan: 'Fix plan accepted. J. Park owns it, due May 3, 2026. Deployment waits for the fix.',
+  assigned: 'Assigned to J. Park to supply the missing information.',
+  counsel: 'Needs counsel. Talk to your counsel before this ships, then record below that you did.'
+};
+
+var POLICIES = [
+  ['01', 'Data Governance Policy', 'v3.0', 'Chief Data Officer'],
+  ['02', 'AI Governance Policy', 'v2.0', 'VP Engineering & CPO'],
+  ['03', 'Privacy Policy', 'v4.0', 'Chief Privacy Officer'],
+  ['04', 'Cookie and Consent Policy', 'v3.0', 'Chief Privacy Officer'],
+  ['05', 'Vendor and Third-Party Data Sharing Policy', 'v2.0', 'CPO & General Counsel'],
+  ['06', 'Sensitive Data and Prohibited Categories Policy', 'v2.0', 'Chief Privacy Officer'],
+  ['07', 'Model Card and Algorithmic Transparency Policy', 'v2.0', 'VP Engineering'],
+  ['08', 'Children\'s Data and Age Verification Policy', 'v2.0', 'CPO & General Counsel'],
+  ['09', 'Children\'s Privacy Notice', 'v2.0', 'Chief Privacy Officer']
+];
+var OVERLAPS = [
+  ['AI Governance and Sensitive Data', 'Which signals the model may use vs. which categories are off-limits'],
+  ['AI Governance and Children\'s Data', 'Which inventory the model may run on vs. exclusions required in the model'],
+  ['Privacy Policy and Vendor Sharing', 'Purposes the Privacy Policy lists vs. data actually sent to partners'],
+  ['Privacy Policy and Children\'s Data', 'When Neffy is treated as knowing a user is a child vs. steps it must take first'],
+  ['Data Governance and Children\'s Data', 'General retention schedules vs. shorter retention for children\'s data'],
+  ['Model Card and AI Governance', 'The order of the two sign-offs before deployment'],
+  ['Vendor Sharing and Sensitive Data', 'What vendor agreements cover vs. what vendors may do with data downstream'],
+  ['Cookie & Consent and Children\'s Data', 'Relying on upstream consent signals vs. checking independently']
+];
+
+/* ───────── state ───────── */
+var S = {
+  role: null, view: null,
+  reg: { step: 1, type: null },
+  findings: {}, findingOpen: {},
+  filter: { q: '', status: 'all', type: 'all' },
+  counsel: { consulted: '', date: '' },
+  closed: false, closedAt: null,
+  log: [
+    { time: 'Apr 19, 2026', title: 'System registered', note: 'Shared record created. Tandem compared the intake to policy set ' + POLICY_SET + '.' },
+    { time: 'Apr 19, 2026', title: '7 findings sent to the findings queue', note: '3 conflict with policy, 3 missing info, 1 matches. Governance lead notified.', kind: 'flag' }
+  ]
+};
+
+function enterAs(role) {
+  S.role = role; S.view = ROLES[role].home;
+  document.getElementById('role-screen').hidden = true;
+  document.getElementById('app').hidden = false;
+  render();
+}
+function switchRole(role) { S.role = role; S.view = ROLES[role].home; render(); }
+function backToRoles() { document.getElementById('app').hidden = true; document.getElementById('role-screen').hidden = false; window.scrollTo(0, 0); }
+function go(view) { S.view = view; if (view === 'impl-register') { S.reg = { step: 1, type: null }; } render(); window.scrollTo(0, 0); }
+function cardToggled(id, open) { S.findingOpen[id] = open; }
+
+function blockedCount() { return FINDINGS.filter(function (f) { return S.findings[f.id] && S.findings[f.id].status === 'blocked'; }).length; }
+function closedLabel() { var b = blockedCount(); return b ? 'Closed: ' + b + ' blocked' : 'Closed: no blocks'; }
+function openCount() { return FINDINGS.filter(function (f) { return f.type !== 'pass' && !S.findings[f.id]; }).length; }
+
+/* ───────── shell ───────── */
+function renderRoleScreen() {
+  var cards = [
+    ['implementer', 'Implementer', 'Builder · Procurer · Enabler', 'You\'re bringing an AI system into the organization: you built it, bought it or turned it on inside a tool you already use.', 'Sees your systems, your tasks and flags on your records.'],
+    ['reviewer', 'Reviewer', 'Privacy & ethics · Policy · Security', 'You check the systems assigned to you against your organization\'s policies, raise flags, and approve or block advancement.', 'Sees assigned systems and the flags you raised.'],
+    ['owner', 'Accountable owner', 'Business unit leadership', 'You hold final deployment authority for your unit\'s systems. You can dispute a block and send it to the governance committee.', 'Sees your unit\'s systems, open blocks and pending approvals.'],
+    ['executive', 'Executive', 'Governance committee', 'You see patterns across every system: risk, open blocks, override history. No system-level intake detail.', 'Sees org-wide totals, the override log and committee decisions.'],
+    ['governance', 'Governance lead', 'Policy set · Findings queue', 'You keep the organization\'s approved policies loaded in Tandem, check where they overlap, and route findings to the right owners. Legal questions go to your own counsel, outside Tandem.', 'Sees the policy set, findings with policy text and review summaries.']
+  ];
+  document.getElementById('role-screen').innerHTML =
+    '<p class="label muted">Interactive demo · Neffy Analytics (fictional)</p>' +
+    '<h1 class="display">Tandem</h1><div class="it-rule"></div>' +
+    '<p class="body role-intro">A shared AI governance record. Product, engineering, privacy and business owners work from the same record from intake through production, and every flag, block and approval stays on it. Pick a role to see what that person sees.</p>' +
+    '<div class="role-grid">' + cards.map(function (c) {
+      return '<button type="button" class="role-card" onclick="enterAs(\'' + c[0] + '\')"><span class="heading-3">' + c[1] + '</span><span class="label role-who">' + c[2] + '</span><span class="body-small">' + c[3] + '</span><span class="body-small role-sees">' + c[4] + '</span></button>';
+    }).join('') + '</div>' +
+    '<p class="body-small role-note">In a real deployment your sign-in decides your view. The selector is here so you can compare them. New here? Start with the <a href="decision-tree.html">decision tree</a>, which explains the roles and the three ways a system arrives.</p>' +
+    disclaimer();
+}
+
+function renderShell() {
+  var r = ROLES[S.role];
+  document.getElementById('topbar').innerHTML =
+    '<a class="wordmark" href="#" onclick="backToRoles();return false;">Tandem</a>' +
+    '<span class="label demo-badge">Neffy Analytics · fictional demo</span>' +
+    '<div class="role-pills" role="group" aria-label="Switch role">' + ROLE_ORDER.map(function (k) {
+      return '<button type="button" class="body-small role-pill" aria-pressed="' + (k === S.role) + '" onclick="switchRole(\'' + k + '\')">' + ROLES[k].label + '</button>';
+    }).join('') + '</div>' +
+    '<span class="it-select role-select"><select class="it-select-input" aria-label="Switch role" onchange="switchRole(this.value)">' + ROLE_ORDER.map(function (k) {
+      return '<option value="' + k + '"' + (k === S.role ? ' selected' : '') + '>' + ROLES[k].label + '</option>';
+    }).join('') + '</select>' + icon('down', 14, 'it-select-icon') + '</span>' +
+    '<span class="avatar" title="' + esc(r.who + ', ' + r.title) + '">' + r.initials + '</span>';
+
+  document.getElementById('sidenav').innerHTML =
+    '<p class="label sidenav-label">' + esc(r.who) + ' · ' + esc(r.title) + '</p>' +
+    '<div class="nav-list">' + r.nav.map(function (n) {
+      var count = n[2] === 'open' ? (openCount() ? openCount() + ' open' : '') : n[2];
+      return '<button type="button" class="nav-item"' + (S.view === n[0] ? ' aria-current="page"' : '') + ' onclick="go(\'' + n[0] + '\')">' + esc(n[1]) + (count ? '<span class="nav-count">' + esc(count) + '</span>' : '') + '</button>';
+    }).join('') +
+    '<div class="nav-sep"></div>' +
+    '<a class="nav-item nav-extra" href="decision-tree.html">Decision tree</a>' +
+    '<button type="button" class="nav-item nav-extra" onclick="backToRoles()">All roles</button>' +
+    '</div>';
+}
+
+function render() {
+  renderShell();
+  var fn = VIEWS[S.view] || VIEWS[ROLES[S.role].home];
+  document.getElementById('main').innerHTML = fn() + disclaimer();
+  if (S.view === 'impl-register' && S.reg.step === 3) calcRisk();
+}
+
+function banner(text) { return '<p class="body-small view-banner">' + icon('dot', 16) + '<span>' + text + '</span></p>'; }
+function cantSee(text) { return '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">What you can\'t see</h2><p class="body-small muted">' + text + '</p></section>'; }
+
+/* ───────── views ───────── */
+var VIEWS = {};
+
+VIEWS['impl-dashboard'] = function () {
+  var rtbTag = S.closed ? tag(blockedCount() ? 'fail' : 'pass', closedLabel()) : tag('review', 'In review');
+  return banner('<strong>Implementer view.</strong> You see the systems you registered and the tasks assigned to you.') +
+    pageHead('My systems', 'Each system shows where it is and what\'s needed from you next.', '<div>' + btn('Register a system', 'primary', 'md', "go('impl-register')") + '</div>') +
+    '<div class="stats">' + stat('My systems', '3', 'Registered by you') + stat('Action needed', '1', 'Hard block, response needed') + stat('Approved', '0', 'Ready for deployment') + '</div>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Your registered systems</h2>' +
+    '<button type="button" class="sys-row" onclick="go(\'impl-rtb\')"><span class="sys-row-name">Neffy RTB Audience Segmentation Model v2.4.1</span>' + tag('neutral', 'Builder') + rtbTag + '<span class="code sys-row-meta">RTB-001</span></button>' +
+    '<button type="button" class="sys-row" onclick="go(\'impl-record\')"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('neutral', 'Procurer') + tag('fail', 'Hard block') + '<span class="code sys-row-meta">HR-001</span></button>' +
+    '<div class="sys-row"><span class="sys-row-name">Gemini Workspace rollout</span>' + tag('neutral', 'Enabler') + tag('review', 'Advisory flag') + '<span class="code sys-row-meta">IT-003</span></div>' +
+    '</section>' +
+    cantSee('Other business units\' systems, other implementers\' intake records, the governance committee\'s deliberations, and reviewer notes that weren\'t shared to your record.');
+};
+
+VIEWS['impl-register'] = function () {
+  var st = S.reg.step, labels = ['Implementer type', 'System identity', 'Risk questions', 'Ownership', 'Submit'];
+  var steps = '<ol class="steps" aria-label="Registration steps">' + labels.map(function (l, i) {
+    var n = i + 1, cls = n === st ? 'is-active' : n < st ? 'is-done' : '';
+    return '<li class="step body-small ' + cls + '"' + (n === st ? ' aria-current="step"' : '') + '><span class="step-num">' + n + '</span>' + l + '</li>';
+  }).join('') + '</ol>';
+  var body = '';
+  if (st === 1) {
+    var types = [['builder', 'Builder', 'An engineer or data scientist who built this system internally.'], ['procurer', 'Procurer', 'An HR manager, ops lead or business unit buying and deploying a vendor\'s tool.'], ['enabler', 'Enabler', 'An IT admin turning on an AI feature inside a platform you already use, like Gemini or Copilot.']];
+    var hints = { builder: 'You\'ll answer technical questions directly: model, training data, bias testing.', procurer: 'You\'ll answer questions about what the vendor gave you: the DPA, bias audits, system cards. You won\'t be asked for what only the vendor knows.', enabler: 'You\'ll answer questions about which data the feature touches and how far it rolls out, not about model internals.' };
+    body = '<div class="type-grid">' + types.map(function (t) {
+      return '<button type="button" class="type-card" aria-pressed="' + (S.reg.type === t[0]) + '" onclick="pickType(\'' + t[0] + '\')"><span class="heading-3">' + t[1] + '</span><span class="body-small">' + t[2] + '</span></button>';
+    }).join('') + '</div>' +
+      (S.reg.type ? '<div class="mt-6">' + callout('note', '<p>' + hints[S.reg.type] + '</p>') + '</div>' : '') +
+      '<div class="btn-row" style="justify-content:flex-end">' + btn('Continue', 'primary', 'md', 'regGo(2)', S.reg.type ? '' : ' disabled') + '</div>' +
+      (S.reg.type ? '' : '<p class="body-small hint" style="text-align:right">Pick a type to continue.</p>');
+  } else if (st === 2) {
+    body = '<section class="it-card">' + intakeForm(S.reg.type || 'builder') + '</section>' +
+      '<div class="btn-row between">' + btn('Back', 'secondary', 'md', 'regGo(1)') + btn('Continue', 'primary', 'md', 'regGo(3)') + '</div>';
+  } else if (st === 3) {
+    body = '<section class="it-card"><h2 class="heading-3">Risk questions</h2><p class="body-small muted" style="margin-bottom:var(--space-4)">Five weighted questions set the risk tier and decide which reviewers are assigned.</p>' +
+      RISK_QS.map(function (q, i) {
+        return '<div class="risk-q"><fieldset><legend>' + esc(q.q) + '</legend>' + q.opts.map(function (o, j) {
+          return '<label class="radio body-small"><input type="radio" name="rq' + i + '" value="' + (j + 1) + '" onchange="calcRisk()"' + (S.reg['rq' + i] == j + 1 ? ' checked' : '') + '><span>' + esc(o) + '</span></label>';
+        }).join('') + '</fieldset></div>';
+      }).join('') +
+      '<div style="margin-top:var(--space-4)"><div class="label muted">Risk tier</div><div class="tier" id="tier">Answer the questions</div><div class="meter"><div class="meter-fill" id="meter"></div></div><div class="code muted" id="score">0 / 100</div></div>' +
+      '<div id="risk-callout" class="mt-6"></div></section>' +
+      '<div class="btn-row between">' + btn('Back', 'secondary', 'md', 'regGo(2)') + btn('Continue', 'primary', 'md', 'regGo(4)') + '</div>';
+  } else if (st === 4) {
+    var roles = [['AO', 'Accountable owner', 'Who has final authority over deployment?', true], ['TL', 'Technical lead', 'Who understands how the system works and can change it?'], ['PE', 'Privacy & ethics reviewer', 'Who reviews bias, fairness and data protection?'], ['PR', 'Policy reviewer', 'Who checks this system against your policies and vendor terms?'], ['CL', 'Community liaison', 'Who represents or contacts the people the system affects? May be external.']];
+    body = '<section class="it-card"><h2 class="heading-3">Ownership</h2><p class="body-small muted">Assign by decision authority, not by org chart.</p>' +
+      roles.map(function (r, i) {
+        return '<div class="role-row"><span class="avatar">' + r[0] + '</span><div><div class="field-label" style="font-weight:600">' + r[1] + (r[3] ? ' <span class="req" aria-label="required">*</span>' : '') + '</div><p class="body-small muted" style="margin-bottom:var(--space-2)">' + r[2] + '</p>' +
+          '<div class="form-grid"><div class="field"><label for="own' + i + 'n" class="body-small">Name</label><input id="own' + i + 'n" type="text"></div><div class="field"><label for="own' + i + 't" class="body-small">Role or title</label><input id="own' + i + 't" type="text"></div></div></div></div>';
+      }).join('') + '</section>' +
+      '<div class="mt-6">' + callout('note', '<p>Tandem checks systems against your organization\'s own policies. It doesn\'t tell you what the law requires. Talk to your counsel about regulatory exposure before launch.</p>', { label: 'Before launch' }) + '</div>' +
+      '<div class="btn-row between">' + btn('Back', 'secondary', 'md', 'regGo(3)') + btn('Continue', 'primary', 'md', 'regGo(5)') + '</div>';
+  } else {
+    body = '<section class="it-card"><h2 class="heading-2">Ready to register</h2><p class="body" style="margin:var(--space-4) 0">Submitting creates a shared record that every assigned reviewer sees from the start. Tandem compares your intake to the current policy set and sends any findings to the governance lead.</p>' +
+      '<p class="body-small muted">Reviewers are notified right away. Flags triggered by your answers appear on the record at registration.</p></section>' +
+      '<div class="btn-row between">' + btn('Back', 'secondary', 'md', 'regGo(4)') + btn('Submit and create record', 'primary', 'md', 'submitSystem()') + '</div>';
+  }
+  return pageHead('Register a system', 'How is this system arriving? Your answer decides which questions you get.') + steps + body;
+};
+
+function intakeForm(type) {
+  function f(id, label, input, req, hint) { return '<div class="field"><label for="' + id + '">' + label + (req ? ' <span class="req" aria-label="required">*</span>' : '') + '</label>' + input + (hint ? '<span class="body-small hint">' + hint + '</span>' : '') + '</div>'; }
+  function sel(id, opts) { return '<select id="' + id + '"><option>Select</option>' + opts.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>'; }
+  function inp(id, ph) { return '<input id="' + id + '" type="text" placeholder="' + esc(ph) + '">'; }
+  function sec(t) { return '<h3 class="heading-3 form-section">' + t + '</h3>'; }
+  if (type === 'procurer') {
+    return sec('System identity') + '<div class="form-grid">' + f('vn', 'Vendor name', inp('vn', 'e.g. TalentFlow Inc.'), true) + f('pn', 'Product name', inp('pn', 'e.g. Resume Screening Pro'), true) + '</div>' +
+      f('pd', 'Plain-language description', '<textarea id="pd" placeholder="What does this tool do in your organization?"></textarea>', true) +
+      '<div class="form-grid">' + f('bu', 'Business unit', sel('bu', ['HR & People', 'Operations', 'Finance'])) + f('af', 'Who will it affect?', sel('af', ['Employees', 'Applicants', 'Customers'])) + '</div>' +
+      sec('What the vendor gave you') + '<p class="body-small muted" style="margin-bottom:var(--space-4)">You won\'t be asked what the vendor built, only what they\'ve provided.</p>' +
+      f('ba', 'Vendor bias audit or fairness assessment', sel('ba', ['Yes, I can attach it', 'No, not provided', 'Unknown, will request']), true) +
+      f('dpa', 'Data processing agreement status', sel('dpa', ['Signed, mentions AI use', 'Signed, AI use not mentioned', 'Pending', 'None'])) +
+      f('td', 'Training data disclosed by vendor?', sel('td', ['Yes, documented', 'Partly', 'No'])) +
+      f('cc', 'Counsel consulted on the vendor\'s AI terms?', sel('cc', ['Not yet', 'Yes', 'No']), false, 'Record only whether and when. Don\'t paste what counsel said.');
+  }
+  if (type === 'enabler') {
+    return sec('System identity') + '<div class="form-grid">' + f('pl', 'Platform', inp('pl', 'e.g. Google Workspace'), true) + f('ft', 'Feature being turned on', inp('ft', 'e.g. Gemini assistant'), true) + '</div>' +
+      f('tm', 'Which teams get access?', inp('tm', 'e.g. All employees, or Sales only'), true) +
+      f('rs', 'Rollout scope', sel('rs', ['Phased pilot', 'Department-wide', 'Organization-wide'])) +
+      sec('Data exposure') + '<p class="body-small muted" style="margin-bottom:var(--space-4)">The questions here: what data will this touch, and what did you agree to on the organization\'s behalf?</p>' +
+      f('od', 'Which organizational data will the feature reach?', sel('od', ['Employee email and documents', 'Customer data', 'HR and people data', 'No organizational data', 'Mixed or unclear']), true) +
+      f('tp', 'Does turning it on send data to the vendor\'s training pipeline?', sel('tp', ['Yes', 'No, opted out', 'Unknown, needs review'])) +
+      '<div class="form-grid">' + f('cc', 'Counsel consulted on the vendor\'s AI terms?', sel('cc', ['Not yet', 'Yes', 'No'])) + f('ccd', 'Date consulted', '<input id="ccd" type="date">', false) + '</div>' +
+      '<p class="body-small hint">Record only whether and when. Don\'t paste what counsel said.</p>';
+  }
+  return sec('System identity') + '<div class="form-grid">' + f('sn', 'System name', inp('sn', 'e.g. Resume Classifier v2'), true) + f('sv', 'Version or ID', inp('sv', 'v1.0 or internal ID')) + '</div>' +
+    f('sd', 'Plain-language description', '<textarea id="sd" placeholder="What does this system do and what does it output?"></textarea>', true) +
+    '<div class="form-grid">' + f('bu', 'Business unit', sel('bu', ['Engineering', 'Product', 'Data Science'])) + f('da', 'How are outputs used?', sel('da', ['Fully automated', 'A person reviews first', 'Advisory only'])) + '</div>' +
+    f('wa', 'Who does this system affect?', sel('wa', ['Employees', 'Customers', 'Applicants', 'Internal processes only']), true) +
+    sec('Data and model') + '<div class="form-grid">' + f('ma', 'Model architecture or framework', inp('ma', 'e.g. XGBoost, fine-tuned BERT')) + f('ts', 'Training data source', inp('ts', 'Origin, collection terms, date range')) + '</div>' +
+    '<div class="form-grid">' + f('pd2', 'Personal or sensitive data in training?', sel('pd2', ['Yes, sensitive', 'Yes, personal but not sensitive', 'No personal data', 'Unknown'])) + f('rt', 'Training data retention period', inp('rt', 'e.g. 90 days')) + '</div>' +
+    sec('Fairness') + f('bt', 'Bias testing done?', sel('bt', ['Yes, results attached', 'Informally reviewed', 'Not tested']));
+}
+
+var RISK_QS = [
+  { q: 'Who does this system make or influence decisions about?', opts: ['Internal processes only', 'Employees or customers', 'Vulnerable or protected groups'], w: 1 },
+  { q: 'What happens if the system gets it wrong?', opts: ['Minor inconvenience, easy to fix', 'Significant impact, reversible', 'Serious harm, hard to reverse'], w: 2 },
+  { q: 'How much does a person review before an output takes effect?', opts: ['A person always reviews first', 'A person reviews some cases', 'Fully automated'], w: 2 },
+  { q: 'Does the system use personal or sensitive data?', opts: ['No personal data', 'Personal but not sensitive', 'Sensitive (health, financial, biometric, protected traits)'], w: 1.5 },
+  { q: 'Has it been tested for bias or unequal outcomes?', opts: ['Tested and documented', 'Informally reviewed', 'Not tested'], w: 1.5 }
+];
+function pickType(t) { S.reg.type = t; render(); }
+function regGo(n) { S.reg.step = n; render(); window.scrollTo(0, 0); }
+function calcRisk() {
+  var total = 0, possible = 0, answered = 0;
+  RISK_QS.forEach(function (q, i) {
+    var sel = document.querySelector('input[name=rq' + i + ']:checked');
+    if (sel) { total += +sel.value * q.w; answered++; S.reg['rq' + i] = +sel.value; }
+    possible += 3 * q.w;
+  });
+  var meter = document.getElementById('meter'); if (!meter) return;
+  if (!answered) return;
+  var pct = Math.round(total / possible * 100), tier, msg, tone = 'note';
+  if (pct < 50) { tier = 'Low risk'; msg = 'Standard path. The privacy & ethics reviewer is assigned for a light review.'; }
+  else if (pct < 75) { tier = 'Moderate risk'; msg = 'Privacy & ethics and policy reviewers are assigned. Bias documentation is requested.'; }
+  else { tier = 'High risk'; tone = 'warning'; msg = 'Full review. Privacy & ethics, policy and security reviewers are assigned, and a community liaison is recommended. Talk to your counsel before launch.'; }
+  meter.style.width = pct + '%';
+  meter.style.background = tone === 'warning' ? 'var(--burgundy)' : 'var(--forest)';
+  document.getElementById('tier').textContent = tier;
+  document.getElementById('score').textContent = pct + ' / 100' + (answered < RISK_QS.length ? ' · ' + (RISK_QS.length - answered) + ' unanswered' : '');
+  document.getElementById('risk-callout').innerHTML = callout(tone, '<p>' + msg + '</p>');
+}
+function submitSystem() {
+  toast('System registered. Tandem is comparing the intake to policy set ' + POLICY_SET + '.');
+  setTimeout(function () { toast('7 findings sent to the findings queue. Governance lead notified.'); }, 1200);
+  setTimeout(function () { go('impl-rtb'); }, 2000);
+}
+
+VIEWS['impl-rtb'] = function () {
+  var decided = FINDINGS.filter(function (f) { return f.type !== 'pass'; });
+  var head = pageHead('Neffy RTB Audience Segmentation Model v2.4.1', '<span class="code">RTB-001 · Builder · Policy set ' + POLICY_SET + '</span>');
+  var lc = S.closed && blockedCount() ? lifecycle(['done', 'blocked']) : S.closed ? lifecycle(['done', 'done', 'active']) : lifecycle(['done', 'active']);
+  var top = S.closed
+    ? callout('warning', '<p>The governance lead closed the review. Findings marked Blocked have to be fixed before this system can be approved. Each one below says what\'s needed.</p>', { label: 'Review closed' })
+    : callout('note', '<p>Tandem compared your intake to Neffy\'s policy set and sent 7 findings to the governance lead. Your system can\'t move to Approved until the review closes.</p>', { label: 'In review' });
+  var list = S.closed ? '<h2 class="heading-2 mt-10" style="margin-bottom:var(--space-4)">Findings</h2><div class="it-list">' + decided.map(function (f) {
+    var st = S.findings[f.id];
+    return rec({ id: 'impl-' + f.id, name: esc(f.title), reference: f.policies, status: STATUS_TAG[st.status], fields: [
+      { label: 'What\'s needed', html: esc(STATUS_TEXT[st.status]) }, { label: 'Why', html: esc(f.detail) }] });
+  }).join('') + '</div>' : '';
+  return head + top +
+    '<div class="grid-2 mt-6"><section class="it-card"><h2 class="heading-3 it-section-title">Findings summary</h2>' +
+    '<div class="stats" style="margin:0">' + stat('Conflicts', '3', 'with policy') + stat('Missing info', '3', 'to supply') + stat('Matches', '1', 'policy') + '</div></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Lifecycle</h2>' + lc +
+    '<p class="body-small muted" style="margin-top:var(--space-4)">' + (S.closed ? (blockedCount() ? 'Blocked at In review until the blocked findings are fixed.' : 'No blocks. Fix plans and assigned items still have to land before deployment.') : 'In review. Can\'t move to Approved while the review is open.') + '</p></section></div>' +
+    list +
+    '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">Activity</h2>' + timeline(S.log.slice().reverse()) + '</section>';
+};
+
+VIEWS['impl-record'] = function () {
+  return pageHead('Resume Screening Model v2.1', '<span class="code">HR-001 · Procurer · Your registered system</span>', '<div>' + tag('fail', 'Hard block: your response needed') + '</div>') +
+    callout('warning', '<p>The privacy & ethics reviewer raised a hard block. The system can\'t advance until it\'s resolved. You can send more information, re-source the data, or ask your accountable owner to take it to the governance committee.</p>', { label: 'Hard block' }) +
+    '<div class="grid-2 mt-6"><div class="stack">' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">What the reviewer flagged</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p>' +
+    '<p class="body-small" style="margin:var(--space-2) 0">Candidate data was collected for "internal HR analytics." Training a model isn\'t on that list. The privacy impact assessment found the gap; the data needs new terms or a new source.</p>' +
+    '<p class="body-small muted">Raised by Marcus Webb, privacy & ethics reviewer · Apr 1, 2026</p></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">What you can do</h2><div class="option-list">' +
+    '<div class="option"><div class="option-title">Re-source the training data</div><p class="body-small muted">Get data collected under terms that cover model training, then send the reviewer the documentation to close the block.</p></div>' +
+    '<div class="option"><div class="option-title">Send more information</div><p class="body-small muted">Add context or documents the reviewer may not have seen at intake.</p></div>' +
+    '<div class="option"><div class="option-title">Dispute through your accountable owner</div><p class="body-small muted">You can\'t override a hard block. Your accountable owner can send it to the governance committee, and the override stays visible on the record.</p></div>' +
+    '</div></section></div>' +
+    '<div class="stack"><section class="it-card"><h2 class="heading-3 it-section-title">Lifecycle</h2>' + lifecycle(['done', 'blocked']) + '<p class="body-small muted" style="margin-top:var(--space-4)">Blocked at In review. Can\'t move to Approved while a hard block is open.</p></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Activity on your record</h2>' + timeline([
+      { time: 'Apr 1 · 9:14 AM', title: 'Hard block raised', note: 'Marcus Webb: training data use isn\'t covered by the collection terms.', kind: 'block' },
+      { time: 'Mar 30 · 2:07 PM', title: 'Risk score 78 / 100, high risk', note: 'Privacy & ethics and policy reviewers assigned.' },
+      { time: 'Mar 30 · 2:01 PM', title: 'Advisory flag raised automatically', note: 'No vendor bias audit provided at intake.', kind: 'flag' },
+      { time: 'Mar 30 · 1:55 PM', title: 'System registered', note: 'Shared record created. Reviewers notified.' }]) + '</section></div></div>';
+};
+
+VIEWS['rev-dashboard'] = function () {
+  return banner('<strong>Reviewer view.</strong> You see the systems assigned to you and the flags you raised.') +
+    pageHead('My review queue', 'Each system here needs your assessment before it can advance.', '<div>' + tag('neutral', 'Privacy & ethics · Marcus Webb') + '</div>') +
+    '<div class="stats">' + stat('Assigned to me', '3', 'Systems awaiting review') + stat('Flags I raised', '2', '1 hard block, 1 advisory') + stat('Overdue', '1', 'Response window passed') + '</div>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Needs your action</h2>' +
+    '<button type="button" class="sys-row" onclick="go(\'rev-review\')"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('neutral', 'Procurer') + tag('fail', 'Your hard block') + '<span class="code sys-row-meta">HR-001 · Apr 1</span></button></section>' +
+    '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">Pending review</h2>' +
+    '<div class="sys-row"><span class="sys-row-name">Customer Churn Predictor</span>' + tag('neutral', 'Builder') + tag('review', 'Your advisory flag') + '<span class="code sys-row-meta">PROD-007 · 3 days left</span></div>' +
+    '<div class="sys-row"><span class="sys-row-name">Content Moderation Assistant</span>' + tag('neutral', 'Builder') + tag('neutral', 'New assignment') + '<span class="code sys-row-meta">ENG-015 · High risk</span></div></section>' +
+    cantSee('Systems not assigned to you, other business units\' registries, the governance committee\'s deliberations unless you\'re a member, and the executive posture view.');
+};
+
+VIEWS['rev-review'] = function () {
+  return pageHead('Privacy & ethics review', '<span class="code">HR-001 · Resume Screening Model v2.1 · Procurer intake</span>', '<div>' + tag('fail', 'Your hard block is active') + '</div>') +
+    '<div class="grid-2"><div class="stack">' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Intake answers for your review</h2>' +
+    rows([['Vendor bias audit', 'Not provided', true], ['Training data collection terms', 'Don\'t cover model training', true], ['How outputs are used', 'Partly automated, shortlisting only'], ['Who it affects', 'External applicants'], ['Model or system card', 'Not available', true]]) + '</section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Vendor terms</h2>' +
+    '<p class="body-small">Dana Okoye, policy reviewer, asked the vendor for written confirmation that its DPA covers model training. Waiting on the vendor since Apr 2.</p>' +
+    '<p class="body-small" style="margin-top:var(--space-4)"><span class="counsel-chip label">' + icon('check', 12) + 'Counsel consulted · Yes · Apr 2, 2026</span></p></section>' +
+    '</div><div class="stack">' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Your hard block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted" style="margin:var(--space-2) 0 var(--space-4)">Raised Apr 1, 2026 · 9:14 AM. System locked. Implementer notified.</p>' +
+    '<div class="finding-actions">' + btn('Uphold block', 'destructive', 'sm', "toast('Block upheld. Logged to the record.')") + btn('Close block: fixed', 'secondary', 'sm', "toast('Block closed. Logged to the record.')") + btn('Ask for more information', 'secondary', 'sm', "toast('Request sent to J. Park.')") + btn('Make it advisory', 'secondary', 'sm', "toast('Converted to an advisory flag. Logged to the record.')") + '</div></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Add to the record</h2>' +
+    '<div class="field"><label for="rnote">Operational note</label><textarea id="rnote" placeholder="e.g. Asked the vendor for its bias audit on Apr 3."></textarea><span class="body-small hint">Everyone on this record sees it, except the implementer, and it can\'t be edited. Don\'t paste legal advice here. If you talked to counsel, use the field below.</span></div>' +
+    '<div class="form-grid"><div class="field"><label for="rflag">Raise a new flag</label><select id="rflag"><option>None</option><option>Hard block</option><option>Advisory flag</option><option>Recommendation</option></select></div>' +
+    '<div class="field"><label for="rcc">Counsel consulted?</label><select id="rcc"><option>No change</option><option>Yes</option><option>No</option></select></div></div>' +
+    btn('Save to record', 'primary', 'md', "toast('Saved to the record.')") + '</section>' +
+    callout('note', '<p>Every action you take is kept permanently on the record and visible to future reviewers.</p>') +
+    '</div></div>';
+};
+function rows(list) {
+  return '<dl style="margin:0">' + list.map(function (r) {
+    return '<div style="display:flex;justify-content:space-between;gap:var(--space-4);padding:var(--space-2) 0;border-bottom:1px solid var(--hairline);flex-wrap:wrap"><dt class="body-small muted">' + esc(r[0]) + '</dt><dd class="body-small" style="margin:0;font-weight:500;' + (r[2] ? 'color:var(--burgundy)' : '') + '">' + esc(r[1]) + '</dd></div>';
+  }).join('') + '</dl>';
+}
+
+VIEWS['owner-dashboard'] = function () {
+  return banner('<strong>Accountable owner view.</strong> You see every system in your business unit, its status, and anything waiting on your decision.') +
+    pageHead('HR & People: AI systems', 'You hold final deployment authority for each of these.', '<div>' + tag('neutral', 'Sarah Chen · VP, People Operations') + '</div>') +
+    '<div class="stats">' + stat('Systems in unit', '3', 'All lifecycle stages') + stat('Hard blocks', '1', 'Resume screening') + stat('Awaiting you', '1', 'Deployment decision') + stat('In production', '1', 'Running and monitored') + '</div>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Needs your decision</h2>' +
+    '<button type="button" class="sys-row" onclick="go(\'owner-dispute\')"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('fail', 'Hard block') + tag('review', 'Dispute available') + '<span class="code sys-row-meta">HR-001</span></button></section>' +
+    '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">All systems in your unit</h2>' +
+    '<div class="sys-row"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('neutral', 'Procurer') + tag('fail', 'Hard block') + '<span class="code sys-row-meta">HR-001 · High</span></div>' +
+    '<div class="sys-row"><span class="sys-row-name">Performance Review Assistant</span>' + tag('neutral', 'Procurer') + tag('review', 'In review') + '<span class="code sys-row-meta">HR-004 · Moderate</span></div>' +
+    '<div class="sys-row"><span class="sys-row-name">Onboarding Chatbot</span>' + tag('neutral', 'Builder') + tag('pass', 'In production') + '<span class="code sys-row-meta">HR-008 · Low</span></div></section>' +
+    cantSee('Systems in other units unless you\'re their accountable owner, reviewer notes not shared to the record, committee deliberations unless you\'re a member, and org-wide totals.');
+};
+
+VIEWS['owner-dispute'] = function () {
+  return pageHead('Dispute a hard block', '<span class="code">HR-001 · Resume Screening Model v2.1</span>', '<div>' + tag('review', 'Override needs the committee') + '</div>') +
+    callout('warning', '<p>You can dispute this block but you can\'t override it yourself. Disputing sends it to the governance committee. Your dispute, your business rationale and the committee\'s decision stay on the record permanently.</p>', { label: 'How disputes work' }) +
+    '<div class="grid-2 mt-6"><div class="stack">' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">The block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted">Raised by Marcus Webb, privacy & ethics reviewer · Apr 1, 2026. Locked at In review.</p></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Override rules</h2><div class="option-list">' +
+    '<div class="option"><div class="option-title">Who can override</div><p class="body-small muted">The governance committee only. Your dispute starts a committee review.</p></div>' +
+    '<div class="option"><div class="option-title">What\'s needed</div><p class="body-small muted">Your business rationale. The committee hears both sides and records its decision and any dissent.</p></div>' +
+    '<div class="option"><div class="option-title">What can\'t be overridden</div><p class="body-small muted">The record itself, blocks on rules your policies mark as no-exception, and the visibility of an open block.</p></div>' +
+    '</div></section></div>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">Send the dispute to the committee</h2>' +
+    '<div class="field"><label for="drat">Business rationale <span class="req" aria-label="required">*</span></label><textarea id="drat" rows="5" placeholder="Why should the block be lifted? What does the reviewer not have?"></textarea><span class="body-small hint">Stays on the record permanently and everyone with access to the governance record can read it. Don\'t paste legal advice here. If you talked to counsel, say only that you did and when.</span></div>' +
+    '<div class="field"><label for="dpath">Proposed path</label><select id="dpath"><option>Select</option><option>Override and deploy</option><option>Temporary deployment with an end date</option><option>Override with conditions</option></select></div>' +
+    '<div class="btn-row">' + btn('Cancel', 'secondary', 'md', "go('owner-dashboard')") + btn('Send to committee', 'destructive', 'md', "toast('Dispute sent. Governance committee notified.')") + '</div>' +
+    '<p class="body-small muted" style="margin-top:var(--space-4)">For deadlines, the committee can approve a temporary deployment with an end date. If the block isn\'t resolved by then, the system is suspended automatically.</p>' +
+    '</section></div>';
+};
+
+VIEWS['exec-dashboard'] = function () {
+  function bars(rowsIn, max) {
+    return '<div class="bars">' + rowsIn.map(function (r) {
+      return '<div class="bar-row body-small"><span>' + esc(r[0]) + '</span><span class="bar-track" aria-hidden="true"><span class="bar-fill" style="display:block;width:' + Math.round(r[1] / max * 100) + '%"></span></span><span class="bar-val">' + r[1] + '</span></div>';
+    }).join('') + '</div>';
+  }
+  return banner('<strong>Executive view.</strong> Patterns across every system, not system-level intake detail. Committee decisions and override history are fully visible here.') +
+    pageHead('Governance posture', 'Every registered AI system at Neffy, updated as systems move through the lifecycle.') +
+    '<div class="stats">' + stat('Total systems', '7', 'All units') + stat('Open hard blocks', '2', 'Holding deployment') + stat('Overrides', '1', 'This quarter') + stat('High risk', '3', '43% of systems') + '</div>' +
+    '<div class="grid-2"><section class="it-card"><h2 class="heading-3 it-section-title">By risk tier</h2>' + bars([['High', 3], ['Moderate', 2], ['Low', 2]], 7) +
+    '<h2 class="heading-3 it-section-title mt-6">By how they arrived</h2>' + bars([['Built', 4], ['Bought', 2], ['Enabled', 1]], 7) + '</section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">By lifecycle stage</h2>' + bars([['Registered', 2], ['In review', 2], ['Approved', 1], ['Production', 2]], 7) +
+    '<h2 class="heading-3 it-section-title mt-6">Flags this quarter</h2>' + bars([['Hard blocks', 2], ['Advisory flags', 5], ['Overrides', 1]], 7) + '</section></div>' +
+    '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">Override history</h2><p class="body-small muted" style="margin-bottom:var(--space-4)">Overrides stay on the record permanently. Anyone with access to the governance record can read them.</p>' +
+    '<div class="option"><div style="display:flex;justify-content:space-between;gap:var(--space-2);flex-wrap:wrap"><span class="option-title">Override granted: Accounts Payable Automation</span>' + tag('review', 'Override') + '</div>' +
+    '<p class="body-small muted" style="margin:var(--space-2) 0">The committee overrode a hard block after formal review. The accountable owner gave a business rationale; the privacy & ethics reviewer\'s dissent is on the record.</p>' +
+    '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap">' + tag('neutral', 'Vote 3–1') + tag('neutral', 'Jan 14, 2026') + tag('fail', 'Dissent recorded') + '</div></div>' +
+    '<h2 class="heading-3 it-section-title mt-6">Open hard blocks</h2>' +
+    '<div class="sys-row"><span class="sys-row-name">Resume Screening Model v2.1: collection terms</span>' + tag('review', 'Dispute pending') + '<span class="code sys-row-meta">HR-001</span></div>' +
+    '<div class="sys-row"><span class="sys-row-name">Content Moderation Assistant: no human review documented</span>' + tag('neutral', 'Open') + '<span class="code sys-row-meta">ENG-015</span></div></section>' +
+    cantSee('Field-level intake answers, reviewer notes not shared to the record, implementers\' internal messages, and system-level technical documents. This view is aggregated on purpose.');
+};
+
+VIEWS['gov-policies'] = function () {
+  return pageHead('Policy set', 'The policies Neffy has approved, loaded as the set every system is compared against.', '<div>' + asof('April 19, 2026', '2026-04-19', 'Policy set ' + POLICY_SET + ' · approved by each policy\'s owner', 'Loaded') + '</div>') +
+    callout('note', '<p>Tandem takes these policies as your organization approved them. It doesn\'t check whether they meet the law. That\'s a question for your counsel, and the answer stays with them, not in Tandem.</p>', { label: 'What Tandem assumes' }) +
+    '<h2 class="heading-2 mt-10" style="margin-bottom:var(--space-4)">Policies</h2><div class="it-list">' + POLICIES.map(function (p) {
+      return rec({ id: 'pol-' + p[0], name: esc(p[1]), reference: 'Policy ' + p[0] + ' · ' + p[2], status: ['pass', 'Loaded'], fields: [
+        { label: 'Owner', html: esc(p[3]) }, { label: 'Version', html: esc(p[2]) }, { label: 'In this set since', html: 'April 19, 2026' }] });
+    }).join('') + '</div>' +
+    '<h2 class="heading-2 mt-10" style="margin-bottom:var(--space-2)">Policy overlap check</h2>' +
+    '<p class="body muted" style="margin-bottom:var(--space-4)">Where two policies give different instructions for the same case. Tandem shows the overlap; both policy owners decide what changes.</p>' +
+    '<div class="it-list">' + OVERLAPS.map(function (o, i) {
+      return rec({ id: 'ov-' + i, name: esc(o[0]), reference: 'Pair ' + (i + 1), status: ['pass', 'Owners reconciled'], fields: [
+        { label: 'Where they overlap', html: esc(o[1]) }, { label: 'Status', html: 'Both owners updated their policies. Reconciled April 19, 2026.' }] });
+    }).join('') + '</div>';
+};
+
+function findingStatusTag(f) { var st = S.findings[f.id]; return st ? STATUS_TAG[st.status] : TYPE_TAG[f.type]; }
+VIEWS['gov-queue'] = function () {
+  var q = S.filter.q.trim().toLowerCase();
+  var shown = FINDINGS.filter(function (f) {
+    var decided = f.type === 'pass' || !!S.findings[f.id];
+    if (S.filter.status === 'open' && decided) return false;
+    if (S.filter.status === 'decided' && !decided) return false;
+    if (S.filter.type !== 'all' && f.type !== S.filter.type) return false;
+    if (q && (f.title + ' ' + f.detail + ' ' + f.cite + ' ' + f.policies).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  var open = openCount();
+  var needsCounsel = FINDINGS.some(function (f) { return S.findings[f.id] && S.findings[f.id].status === 'counsel'; });
+  var counselOk = !needsCounsel || (S.counsel.consulted === 'Yes' && S.counsel.date);
+  var canClose = !S.closed && open === 0 && counselOk;
+  var why = S.closed ? 'This review is closed.' : open ? 'Closing unlocks once every finding has a status (' + open + ' left).' : !counselOk ? 'A finding needs counsel. Record that counsel was consulted, with the date, to close.' : 'Ready to close.';
+
+  var cards = shown.map(function (f) {
+    var st = S.findings[f.id], actions;
+    if (f.type === 'pass') actions = '<span class="body-small muted">No action needed.</span>';
+    else if (st) actions = '<span class="body-small">' + esc(STATUS_TEXT[st.status]) + '</span><br><span class="body-small muted">Set by Priya Natarajan · ' + esc(st.at) + '</span>';
+    else actions = '<div class="finding-actions">' +
+      btn('Confirm block', 'destructive', 'sm', "decide('" + f.id + "','blocked')") +
+      btn('Accept with fix plan', 'secondary', 'sm', "decide('" + f.id + "','fixplan')") +
+      btn('Assign to owner', 'secondary', 'sm', "decide('" + f.id + "','assigned')") +
+      btn('Needs counsel', 'secondary', 'sm', "decide('" + f.id + "','counsel')") + '</div>';
+    return rec({ id: f.id, name: hl(f.title, q), reference: f.policies, status: findingStatusTag(f), open: !!S.findingOpen[f.id], fields: [
+      { label: 'What Tandem found', html: hl(f.detail, q) },
+      { label: 'Neffy policy text', html: '<span class="quote" style="display:block">' + hl(f.cite, q) + '</span>' },
+      { label: 'Status', html: actions }] });
+  }).join('') || '<p class="body muted">No findings match these filters.</p>';
+
+  return pageHead('Findings queue', 'Neffy RTB Audience Segmentation Model v2.4.1 · registered by J. Park. Each finding compares the intake to Neffy\'s own policy text.',
+      '<div>' + asof('April 19, 2026', '2026-04-19', 'Policy set ' + POLICY_SET, 'Last run') + '</div>') +
+    '<div class="it-toolbar">' +
+    '<label class="it-search">' + icon('search', 16, 'it-search-icon') + '<input class="it-search-input" type="search" autocomplete="off" aria-label="Search findings" placeholder="Search findings or policy text" value="' + esc(S.filter.q) + '" oninput="setFilter(\'q\', this.value)"></label>' +
+    fsel('status', 'Filter by status', [['all', 'All statuses'], ['open', 'Open'], ['decided', 'Decided']]) +
+    fsel('type', 'Filter by type', [['all', 'All types'], ['conflict', 'Conflicts with policy'], ['gap', 'Missing info'], ['pass', 'Matches policy']]) +
+    btn('Ask J. Park for more information', 'secondary', 'md', "toast('Request sent to J. Park.')") +
+    '<span class="body-small it-count">' + shown.length + ' of ' + FINDINGS.length + ' findings · ' + open + ' open</span></div>' +
+    '<div class="it-list" id="findings">' + cards + '</div>' +
+    '<div class="mt-6">' + callout('note', '<p>A finding says whether the system matches Neffy\'s policies. It doesn\'t say whether the system meets the law. Where that question comes up, mark the finding Needs counsel and talk to your counsel outside Tandem.</p>', { label: 'Plain English' }) + '</div>' +
+    '<section class="it-card mt-6"><h2 class="heading-3 it-section-title">Close the review</h2>' +
+    '<div class="form-grid"><div class="field"><label for="ccon">Counsel consulted for this review?</label><select id="ccon" onchange="setCounsel(\'consulted\', this.value)"' + (S.closed ? ' disabled' : '') + '>' +
+    ['', 'Yes', 'No'].map(function (v) { return '<option value="' + v + '"' + (S.counsel.consulted === v ? ' selected' : '') + '>' + (v || 'Not yet') + '</option>'; }).join('') + '</select></div>' +
+    '<div class="field"><label for="cdate">Date</label><input id="cdate" type="date" value="' + esc(S.counsel.date) + '" onchange="setCounsel(\'date\', this.value)"' + (S.closed ? ' disabled' : '') + '></div></div>' +
+    '<p class="body-small hint" style="margin-bottom:var(--space-4)">Record that the conversation happened and when. Don\'t record what counsel said; there\'s deliberately no place for it.</p>' +
+    btn('Close review and export summary', 'primary', 'md', 'closeReview()', canClose ? '' : ' disabled') +
+    '<p class="body-small muted" style="margin-top:var(--space-2)">' + esc(why) + '</p></section>';
+};
+function hl(text, q) {
+  var t = esc(text); if (!q) return t;
+  var re = new RegExp('(' + esc(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+  return t.replace(re, '<mark class="it-mark">$1</mark>');
+}
+function fsel(key, label, opts) {
+  return '<span class="it-select"><select class="it-select-input" aria-label="' + label + '" onchange="setFilter(\'' + key + '\', this.value)">' + opts.map(function (o) {
+    return '<option value="' + o[0] + '"' + (S.filter[key] === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+  }).join('') + '</select>' + icon('down', 14, 'it-select-icon') + '</span>';
+}
+function setFilter(k, v) {
+  S.filter[k] = v;
+  if (k === 'q') {
+    var pos = v.length;
+    render();
+    var inp = document.querySelector('.it-search-input'); if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); }
+  } else render();
+}
+function setCounsel(k, v) { S.counsel[k] = v; render(); }
+function decide(id, status) {
+  S.findings[id] = { status: status, at: nowLabel() };
+  S.findingOpen[id] = true;
+  var f = FINDINGS.filter(function (x) { return x.id === id; })[0];
+  S.log.push({ time: nowLabel(), title: STATUS_TAG[status][1] + ': ' + f.title, note: 'Set by Priya Natarajan, governance lead.', kind: status === 'blocked' ? 'block' : 'flag' });
+  toast(STATUS_TAG[status][1] + '. Logged to the record.');
+  render();
+}
+function closeReview() {
+  S.closed = true; S.closedAt = nowLabel();
+  S.log.push({ time: S.closedAt, title: 'Review closed', note: 'Summary exported. Counsel consulted: ' + (S.counsel.consulted || 'Not recorded') + (S.counsel.date ? ', ' + S.counsel.date : '') + '.', kind: 'flag' });
+  toast('Review closed. Summary added to Review summaries.');
+  go('gov-summaries');
+}
+
+function summaryText() {
+  var lines = ['Tandem review summary', 'System: Neffy RTB Audience Segmentation Model v2.4.1 (RTB-001)', 'Registered by: J. Park', 'Policy set: ' + POLICY_SET,
+    'Review closed: ' + S.closedAt + ' by Priya Natarajan, governance lead',
+    'Counsel consulted: ' + (S.counsel.consulted || 'Not recorded') + (S.counsel.date ? ' (' + S.counsel.date + ')' : ''), '', 'Findings'];
+  FINDINGS.forEach(function (f) {
+    var st = S.findings[f.id];
+    lines.push('- [' + (st ? STATUS_TAG[st.status][1] : TYPE_TAG[f.type][1]) + '] ' + f.title + ' (' + f.policies + ')' + (st ? ' · set ' + st.at : ''));
+  });
+  lines.push('', 'Not legal advice. This summary records workflow status against the organization\'s own policies. Neffy Analytics is fictional.');
+  return lines.join('\n');
+}
+function downloadSummary() {
+  try {
+    var blob = new Blob([summaryText()], { type: 'text/plain' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Tandem_Review_Summary_RTB-001.txt';
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  } catch (e) { toast('Download isn\'t available in this browser.'); }
+}
+
+VIEWS['gov-summaries'] = function () {
+  var cards = [];
+  if (S.closed) {
+    cards.push(rec({ id: 'sum-rtb', name: 'Neffy RTB Audience Segmentation Model v2.4.1', reference: 'RTB-001 · ' + POLICY_SET, status: [blockedCount() ? 'fail' : 'pass', closedLabel()], open: true, fields: [
+      { label: 'Closed', html: esc(S.closedAt) + ' by Priya Natarajan' },
+      { label: 'Counsel consulted', html: esc((S.counsel.consulted || 'Not recorded') + (S.counsel.date ? ' · ' + S.counsel.date : '')) },
+      { label: 'Findings', html: FINDINGS.map(function (f) { var st = S.findings[f.id]; return tag.apply(null, st ? STATUS_TAG[st.status] : TYPE_TAG[f.type]) + ' ' + esc(f.title); }).join('<br>') },
+      { label: 'Export', html: btn('Download summary', 'secondary', 'sm', 'downloadSummary()') }] }));
+  }
+  cards.push(rec({ id: 'sum-hr8', name: 'Onboarding Chatbot', reference: 'HR-008 · v2026.01.12-002', status: ['pass', 'Closed: approved'], fields: [
+    { label: 'Closed', html: 'February 2, 2026 by Priya Natarajan' }, { label: 'Counsel consulted', html: 'No' },
+    { label: 'Findings', html: '4 matched policy. 1 missing item supplied before close.' }] }));
+  return pageHead('Review summaries', 'One summary per closed review: system, policy set, each finding\'s status, owner and date, and whether counsel was consulted.') +
+    '<div class="it-list">' + cards.join('') + '</div>' +
+    (S.closed ? '' : '<p class="body-small muted mt-6">The Neffy RTB review shows up here once it\'s closed in the findings queue.</p>') +
+    '<div class="mt-6">' + callout('note', '<p>A summary records workflow status against your own policies. It holds no signatures, no legal reasoning and nothing counsel said. If someone asks for a legal opinion on a system, that comes from counsel, not from this record.</p>', { label: 'What a summary is' }) + '</div>';
+};
+
+renderRoleScreen();
+</script>
+</body>
+</html>
