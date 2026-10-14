@@ -246,15 +246,15 @@ function nowLabel() { return new Date().toLocaleString('en-US', { month: 'short'
 
 /* ───────── roles ───────── */
 var ROLES = {
-  implementer: { label: 'Implementer', who: 'J. Park', title: 'Product lead', initials: 'JP', home: 'impl-dashboard',
+  implementer: { label: 'Implementer', who: 'Jun Quillfeather', title: 'Product lead', initials: 'JQ', home: 'impl-dashboard',
     nav: [['impl-dashboard', 'My systems'], ['impl-register', 'Register a system'], ['impl-rtb', 'Neffy RTB model'], ['impl-record', 'Resume screening', '1 block']] },
-  reviewer: { label: 'Reviewer', who: 'Marcus Webb', title: 'Privacy & ethics reviewer', initials: 'MW', home: 'rev-dashboard',
+  reviewer: { label: 'Reviewer', who: 'Marlow Thistlewood', title: 'Privacy & ethics reviewer', initials: 'MT', home: 'rev-dashboard',
     nav: [['rev-dashboard', 'My review queue'], ['rev-review', 'Active review', '1 block']] },
-  owner: { label: 'Accountable owner', who: 'Sarah Chen', title: 'VP, People Operations', initials: 'SC', home: 'owner-dashboard',
+  owner: { label: 'Accountable owner', who: 'Odessa Brightwater', title: 'VP, People Operations', initials: 'OB', home: 'owner-dashboard',
     nav: [['owner-dashboard', 'Unit overview'], ['owner-dispute', 'Dispute a block', '1']] },
   executive: { label: 'Executive', who: 'Governance committee', title: 'Org-wide view', initials: 'GC', home: 'exec-dashboard',
     nav: [['exec-dashboard', 'Governance posture']] },
-  governance: { label: 'Governance lead', who: 'Priya Natarajan', title: 'Governance lead', initials: 'PN', home: 'gov-queue',
+  governance: { label: 'Governance lead', who: 'Ines Larkspur', title: 'Governance lead', initials: 'IL', home: 'gov-queue',
     nav: [['gov-policies', 'Policy set'], ['gov-queue', 'Findings queue', 'open'], ['gov-summaries', 'Review summaries']] }
 };
 var ROLE_ORDER = ['implementer', 'reviewer', 'owner', 'executive', 'governance'];
@@ -288,8 +288,8 @@ var TYPE_TAG = { conflict: ['fail', 'Conflicts with policy'], gap: ['review', 'M
 var STATUS_TAG = { blocked: ['fail', 'Blocked'], fixplan: ['pass', 'Fix plan accepted'], assigned: ['review', 'Assigned'], counsel: ['review', 'Needs counsel'] };
 var STATUS_TEXT = {
   blocked: 'Blocked. The system can\'t deploy until this is fixed.',
-  fixplan: 'Fix plan accepted. J. Park owns it, due May 3, 2026. Deployment waits for the fix.',
-  assigned: 'Assigned to J. Park to supply the missing information.',
+  fixplan: 'Fix plan accepted. Jun Quillfeather owns it, due May 3, 2026. Deployment waits for the fix.',
+  assigned: 'Assigned to Jun Quillfeather to supply the missing information.',
   counsel: 'Needs counsel. Talk to your counsel before this ships, then record below that you did.'
 };
 
@@ -556,7 +556,7 @@ VIEWS['impl-record'] = function () {
     '<div class="grid-2 mt-6"><div class="stack">' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">What the reviewer flagged</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p>' +
     '<p class="body-small" style="margin:var(--space-2) 0">Candidate data was collected for "internal HR analytics." Training a model isn\'t on that list. The privacy impact assessment found the gap; the data needs new terms or a new source.</p>' +
-    '<p class="body-small muted">Raised by Marcus Webb, privacy & ethics reviewer · Apr 1, 2026</p></section>' +
+    '<p class="body-small muted">Raised by Marlow Thistlewood, privacy & ethics reviewer · Apr 1, 2026</p></section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">What you can do</h2><div class="option-list">' +
     '<div class="option"><div class="option-title">Re-source the training data</div><p class="body-small muted">Get data collected under terms that cover model training, then send the reviewer the documentation to close the block.</p></div>' +
     '<div class="option"><div class="option-title">Send more information</div><p class="body-small muted">Add context or documents the reviewer may not have seen at intake.</p></div>' +
@@ -564,7 +564,7 @@ VIEWS['impl-record'] = function () {
     '</div></section></div>' +
     '<div class="stack"><section class="it-card"><h2 class="heading-3 it-section-title">Lifecycle</h2>' + lifecycle(['done', 'blocked']) + '<p class="body-small muted" style="margin-top:var(--space-4)">Blocked at In review. Can\'t move to Approved while a hard block is open.</p></section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Activity on your record</h2>' + timeline([
-      { time: 'Apr 1 · 9:14 AM', title: 'Hard block raised', note: 'Marcus Webb: training data use isn\'t covered by the collection terms.', kind: 'block' },
+      { time: 'Apr 1 · 9:14 AM', title: 'Hard block raised', note: 'Marlow Thistlewood: training data use isn\'t covered by the collection terms.', kind: 'block' },
       { time: 'Mar 30 · 2:07 PM', title: 'Risk score 78 / 100, high risk', note: 'Privacy & ethics and policy reviewers assigned.' },
       { time: 'Mar 30 · 2:01 PM', title: 'Advisory flag raised automatically', note: 'No vendor bias audit provided at intake.', kind: 'flag' },
       { time: 'Mar 30 · 1:55 PM', title: 'System registered', note: 'Shared record created. Reviewers notified.' }]) + '</section></div></div>';
@@ -572,7 +572,7 @@ VIEWS['impl-record'] = function () {
 
 VIEWS['rev-dashboard'] = function () {
   return banner('<strong>Reviewer view.</strong> You see the systems assigned to you and the flags you raised.') +
-    pageHead('My review queue', 'Each system here needs your assessment before it can advance.', '<div>' + tag('neutral', 'Privacy & ethics · Marcus Webb') + '</div>') +
+    pageHead('My review queue', 'Each system here needs your assessment before it can advance.', '<div>' + tag('neutral', 'Privacy & ethics · Marlow Thistlewood') + '</div>') +
     '<div class="stats">' + stat('Assigned to me', '3', 'Systems awaiting review') + stat('Flags I raised', '2', '1 hard block, 1 advisory') + stat('Overdue', '1', 'Response window passed') + '</div>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Needs your action</h2>' +
     '<button type="button" class="sys-row" onclick="go(\'rev-review\')"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('neutral', 'Procurer') + tag('fail', 'Your hard block') + '<span class="code sys-row-meta">HR-001 · Apr 1</span></button></section>' +
@@ -588,11 +588,11 @@ VIEWS['rev-review'] = function () {
     '<section class="it-card"><h2 class="heading-3 it-section-title">Intake answers for your review</h2>' +
     rows([['Vendor bias audit', 'Not provided', true], ['Training data collection terms', 'Don\'t cover model training', true], ['How outputs are used', 'Partly automated, shortlisting only'], ['Who it affects', 'External applicants'], ['Model or system card', 'Not available', true]]) + '</section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Vendor terms</h2>' +
-    '<p class="body-small">Dana Okoye, policy reviewer, asked the vendor for written confirmation that its DPA covers model training. Waiting on the vendor since Apr 2.</p>' +
+    '<p class="body-small">Dex Cobblestone, policy reviewer, asked the vendor for written confirmation that its DPA covers model training. Waiting on the vendor since Apr 2.</p>' +
     '<p class="body-small" style="margin-top:var(--space-4)"><span class="counsel-chip label">' + icon('check', 12) + 'Counsel consulted · Yes · Apr 2, 2026</span></p></section>' +
     '</div><div class="stack">' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Your hard block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted" style="margin:var(--space-2) 0 var(--space-4)">Raised Apr 1, 2026 · 9:14 AM. System locked. Implementer notified.</p>' +
-    '<div class="finding-actions">' + btn('Uphold block', 'destructive', 'sm', "toast('Block upheld. Logged to the record.')") + btn('Close block: fixed', 'secondary', 'sm', "toast('Block closed. Logged to the record.')") + btn('Ask for more information', 'secondary', 'sm', "toast('Request sent to J. Park.')") + btn('Make it advisory', 'secondary', 'sm', "toast('Converted to an advisory flag. Logged to the record.')") + '</div></section>' +
+    '<div class="finding-actions">' + btn('Uphold block', 'destructive', 'sm', "toast('Block upheld. Logged to the record.')") + btn('Close block: fixed', 'secondary', 'sm', "toast('Block closed. Logged to the record.')") + btn('Ask for more information', 'secondary', 'sm', "toast('Request sent to Jun Quillfeather.')") + btn('Make it advisory', 'secondary', 'sm', "toast('Converted to an advisory flag. Logged to the record.')") + '</div></section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Add to the record</h2>' +
     '<div class="field"><label for="rnote">Operational note</label><textarea id="rnote" placeholder="e.g. Asked the vendor for its bias audit on Apr 3."></textarea><span class="body-small hint">Everyone on this record sees it, except the implementer, and it can\'t be edited. Don\'t paste legal advice here. If you talked to counsel, use the field below.</span></div>' +
     '<div class="form-grid"><div class="field"><label for="rflag">Raise a new flag</label><select id="rflag"><option>None</option><option>Hard block</option><option>Advisory flag</option><option>Recommendation</option></select></div>' +
@@ -609,7 +609,7 @@ function rows(list) {
 
 VIEWS['owner-dashboard'] = function () {
   return banner('<strong>Accountable owner view.</strong> You see every system in your business unit, its status, and anything waiting on your decision.') +
-    pageHead('HR & People: AI systems', 'You hold final deployment authority for each of these.', '<div>' + tag('neutral', 'Sarah Chen · VP, People Operations') + '</div>') +
+    pageHead('HR & People: AI systems', 'You hold final deployment authority for each of these.', '<div>' + tag('neutral', 'Odessa Brightwater · VP, People Operations') + '</div>') +
     '<div class="stats">' + stat('Systems in unit', '3', 'All lifecycle stages') + stat('Hard blocks', '1', 'Resume screening') + stat('Awaiting you', '1', 'Deployment decision') + stat('In production', '1', 'Running and monitored') + '</div>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Needs your decision</h2>' +
     '<button type="button" class="sys-row" onclick="go(\'owner-dispute\')"><span class="sys-row-name">Resume Screening Model v2.1</span>' + tag('fail', 'Hard block') + tag('review', 'Dispute available') + '<span class="code sys-row-meta">HR-001</span></button></section>' +
@@ -624,7 +624,7 @@ VIEWS['owner-dispute'] = function () {
   return pageHead('Dispute a hard block', '<span class="code">HR-001 · Resume Screening Model v2.1</span>', '<div>' + tag('review', 'Override needs the committee') + '</div>') +
     callout('warning', '<p>You can dispute this block but you can\'t override it yourself. Disputing sends it to the governance committee. Your dispute, your business rationale and the committee\'s decision stay on the record permanently.</p>', { label: 'How disputes work' }) +
     '<div class="grid-2 mt-6"><div class="stack">' +
-    '<section class="it-card"><h2 class="heading-3 it-section-title">The block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted">Raised by Marcus Webb, privacy & ethics reviewer · Apr 1, 2026. Locked at In review.</p></section>' +
+    '<section class="it-card"><h2 class="heading-3 it-section-title">The block</h2><p class="body" style="font-weight:500">Training data use isn\'t covered by the collection terms</p><p class="body-small muted">Raised by Marlow Thistlewood, privacy & ethics reviewer · Apr 1, 2026. Locked at In review.</p></section>' +
     '<section class="it-card"><h2 class="heading-3 it-section-title">Override rules</h2><div class="option-list">' +
     '<div class="option"><div class="option-title">Who can override</div><p class="body-small muted">The governance committee only. Your dispute starts a committee review.</p></div>' +
     '<div class="option"><div class="option-title">What\'s needed</div><p class="body-small muted">Your business rationale. The committee hears both sides and records its decision and any dissent.</p></div>' +
@@ -696,7 +696,7 @@ VIEWS['gov-queue'] = function () {
   var cards = shown.map(function (f) {
     var st = S.findings[f.id], actions;
     if (f.type === 'pass') actions = '<span class="body-small muted">No action needed.</span>';
-    else if (st) actions = '<span class="body-small">' + esc(STATUS_TEXT[st.status]) + '</span><br><span class="body-small muted">Set by Priya Natarajan · ' + esc(st.at) + '</span>';
+    else if (st) actions = '<span class="body-small">' + esc(STATUS_TEXT[st.status]) + '</span><br><span class="body-small muted">Set by Ines Larkspur · ' + esc(st.at) + '</span>';
     else actions = '<div class="finding-actions">' +
       btn('Confirm block', 'destructive', 'sm', "decide('" + f.id + "','blocked')") +
       btn('Accept with fix plan', 'secondary', 'sm', "decide('" + f.id + "','fixplan')") +
@@ -708,13 +708,13 @@ VIEWS['gov-queue'] = function () {
       { label: 'Status', html: actions }] });
   }).join('') || '<p class="body muted">No findings match these filters.</p>';
 
-  return pageHead('Findings queue', 'Neffy RTB Audience Segmentation Model v2.4.1 · registered by J. Park. Each finding compares the intake to Neffy\'s own policy text.',
+  return pageHead('Findings queue', 'Neffy RTB Audience Segmentation Model v2.4.1 · registered by Jun Quillfeather. Each finding compares the intake to Neffy\'s own policy text.',
       '<div>' + asof('April 19, 2026', '2026-04-19', 'Policy set ' + POLICY_SET, 'Last run') + '</div>') +
     '<div class="it-toolbar">' +
     '<label class="it-search">' + icon('search', 16, 'it-search-icon') + '<input class="it-search-input" type="search" autocomplete="off" aria-label="Search findings" placeholder="Search findings or policy text" value="' + esc(S.filter.q) + '" oninput="setFilter(\'q\', this.value)"></label>' +
     fsel('status', 'Filter by status', [['all', 'All statuses'], ['open', 'Open'], ['decided', 'Decided']]) +
     fsel('type', 'Filter by type', [['all', 'All types'], ['conflict', 'Conflicts with policy'], ['gap', 'Missing info'], ['pass', 'Matches policy']]) +
-    btn('Ask J. Park for more information', 'secondary', 'md', "toast('Request sent to J. Park.')") +
+    btn('Ask Jun Quillfeather for more information', 'secondary', 'md', "toast('Request sent to Jun Quillfeather.')") +
     '<span class="body-small it-count">' + shown.length + ' of ' + FINDINGS.length + ' findings · ' + open + ' open</span></div>' +
     '<div class="it-list" id="findings">' + cards + '</div>' +
     '<div class="mt-6">' + callout('note', '<p>A finding says whether the system matches Neffy\'s policies. It doesn\'t say whether the system meets the law. Where that question comes up, mark the finding Needs counsel and talk to your counsel outside Tandem.</p>', { label: 'Plain English' }) + '</div>' +
@@ -749,7 +749,7 @@ function decide(id, status) {
   S.findings[id] = { status: status, at: nowLabel() };
   S.findingOpen[id] = true;
   var f = FINDINGS.filter(function (x) { return x.id === id; })[0];
-  S.log.push({ time: nowLabel(), title: STATUS_TAG[status][1] + ': ' + f.title, note: 'Set by Priya Natarajan, governance lead.', kind: status === 'blocked' ? 'block' : 'flag' });
+  S.log.push({ time: nowLabel(), title: STATUS_TAG[status][1] + ': ' + f.title, note: 'Set by Ines Larkspur, governance lead.', kind: status === 'blocked' ? 'block' : 'flag' });
   toast(STATUS_TAG[status][1] + '. Logged to the record.');
   render();
 }
@@ -761,8 +761,8 @@ function closeReview() {
 }
 
 function summaryText() {
-  var lines = ['Tandem review summary', 'System: Neffy RTB Audience Segmentation Model v2.4.1 (RTB-001)', 'Registered by: J. Park', 'Policy set: ' + POLICY_SET,
-    'Review closed: ' + S.closedAt + ' by Priya Natarajan, governance lead',
+  var lines = ['Tandem review summary', 'System: Neffy RTB Audience Segmentation Model v2.4.1 (RTB-001)', 'Registered by: Jun Quillfeather', 'Policy set: ' + POLICY_SET,
+    'Review closed: ' + S.closedAt + ' by Ines Larkspur, governance lead',
     'Counsel consulted: ' + (S.counsel.consulted || 'Not recorded') + (S.counsel.date ? ' (' + S.counsel.date + ')' : ''), '', 'Findings'];
   FINDINGS.forEach(function (f) {
     var st = S.findings[f.id];
@@ -783,13 +783,13 @@ VIEWS['gov-summaries'] = function () {
   var cards = [];
   if (S.closed) {
     cards.push(rec({ id: 'sum-rtb', name: 'Neffy RTB Audience Segmentation Model v2.4.1', reference: 'RTB-001 · ' + POLICY_SET, status: [blockedCount() ? 'fail' : 'pass', closedLabel()], open: true, fields: [
-      { label: 'Closed', html: esc(S.closedAt) + ' by Priya Natarajan' },
+      { label: 'Closed', html: esc(S.closedAt) + ' by Ines Larkspur' },
       { label: 'Counsel consulted', html: esc((S.counsel.consulted || 'Not recorded') + (S.counsel.date ? ' · ' + S.counsel.date : '')) },
       { label: 'Findings', html: FINDINGS.map(function (f) { var st = S.findings[f.id]; return tag.apply(null, st ? STATUS_TAG[st.status] : TYPE_TAG[f.type]) + ' ' + esc(f.title); }).join('<br>') },
       { label: 'Export', html: btn('Download summary', 'secondary', 'sm', 'downloadSummary()') }] }));
   }
   cards.push(rec({ id: 'sum-hr8', name: 'Onboarding Chatbot', reference: 'HR-008 · v2026.01.12-002', status: ['pass', 'Closed: approved'], fields: [
-    { label: 'Closed', html: 'February 2, 2026 by Priya Natarajan' }, { label: 'Counsel consulted', html: 'No' },
+    { label: 'Closed', html: 'February 2, 2026 by Ines Larkspur' }, { label: 'Counsel consulted', html: 'No' },
     { label: 'Findings', html: '4 matched policy. 1 missing item supplied before close.' }] }));
   return pageHead('Review summaries', 'One summary per closed review: system, policy set, each finding\'s status, owner and date, and whether counsel was consulted.') +
     '<div class="it-list">' + cards.join('') + '</div>' +
